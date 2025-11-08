@@ -31,6 +31,11 @@ export class AuthRepository {
     return doc || null;
   }
 
+  async findUserById(userId: string) {
+    const doc = await this.userModel.findById(userId).lean();
+    return doc || null;
+  }
+
   // ------------------ CLIENTS ------------------
 
   /**
@@ -67,13 +72,13 @@ export class AuthRepository {
     return await this.tokenModel.findOne({ refreshTokenHash: hash }).lean();
   }
 
-  async revokeRefreshToken(refreshToken: string): Promise<boolean> {
-  const result = await this.tokenModel.updateOne(
-    { refreshToken },
-    { $set: { revoked: true } }
-  ).exec();
+  async revokeRefreshToken(refreshTokenHash: string): Promise<boolean> {
+    const result = await this.tokenModel.updateOne(
+      { refreshTokenHash },
+      { $set: { revoked: true } }
+    ).exec();
 
-  return result.modifiedCount > 0;
-}
+    return result.modifiedCount > 0;
+  }
 
 }

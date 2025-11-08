@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+pnpm-debug.log
+Dockerfile
+.git
+.gitignore
+dist
+.next
+.env
+.eslintcache

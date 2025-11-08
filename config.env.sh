@@ -32,7 +32,7 @@ export PORT_PRODUCT="3002"
 export PORT_INVENTORY="3003"
 export PORT_AUTH="4000"
 export PORT_ORDER="5003"
-
+export PORT_CLIENT="3000"
 # Auth Service Configuration
 export JWT_ISS="http://localhost:4000"
 

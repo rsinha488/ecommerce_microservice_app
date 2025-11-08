@@ -71,7 +71,7 @@ export class ProductRepository implements ProductRepositoryInterface {
   }
 
   /**
-   * ✅ List Products with Filtering (Domain-ready)
+   * ✅ List Products with Filtering and Pagination (Domain-ready)
    * Ensures return type is Product[]
    */
   async findAll(filter: FilterProductDto): Promise<Product[]> {
@@ -97,10 +97,17 @@ export class ProductRepository implements ProductRepositoryInterface {
         query.price = { ...query.price, $lte: Number(filter.maxPrice) };
       }
 
-      // ✅ Fetch raw JS objects using lean()
+      // ✅ Pagination
+      const page = filter.page || 1;
+      const limit = filter.limit || 10;
+      const skip = (page - 1) * limit;
+
+      // ✅ Fetch raw JS objects using lean() with pagination
       const results = await this.productModel
         .find(query)
         .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .lean();
 
       // ✅ Convert to Domain entities
@@ -109,6 +116,37 @@ export class ProductRepository implements ProductRepositoryInterface {
       this.logger.error('❌ Failed to fetch product list', error.message);
       throw new InternalServerErrorException({
         message: 'PRODUCT_LIST_FETCH_FAILED',
+        details: error.message,
+      });
+    }
+  }
+
+  /**
+   * ✅ Count total products (for pagination)
+   */
+  async count(filter: FilterProductDto): Promise<number> {
+    try {
+      const query: any = {};
+
+      if (filter.category) query.category = filter.category;
+      if (filter.search) {
+        query.$or = [
+          { name: { $regex: filter.search, $options: 'i' } },
+          { description: { $regex: filter.search, $options: 'i' } },
+        ];
+      }
+      if (filter.minPrice) {
+        query.price = { ...query.price, $gte: Number(filter.minPrice) };
+      }
+      if (filter.maxPrice) {
+        query.price = { ...query.price, $lte: Number(filter.maxPrice) };
+      }
+
+      return await this.productModel.countDocuments(query);
+    } catch (error: any) {
+      this.logger.error('❌ Failed to count products', error.message);
+      throw new InternalServerErrorException({
+        message: 'PRODUCT_COUNT_FAILED',
         details: error.message,
       });
     }

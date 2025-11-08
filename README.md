@@ -1,10 +1,12 @@
 # E-commerce Microservices Platform
 
-A complete microservices-based e-commerce platform built with NestJS, MongoDB Atlas, Kafka, and Redis.
+A complete microservices-based e-commerce platform built with NestJS, MongoDB Atlas, Kafka, Redis, and a modern Next.js frontend.
 
 ## 🏗️ Architecture
 
-This project consists of 5 independent microservices:
+This project consists of 5 backend microservices and a Next.js frontend:
+
+### Backend Services
 
 | Service | Port | Description | Status |
 |---------|------|-------------|--------|
@@ -14,14 +16,29 @@ This project consists of 5 independent microservices:
 | **Auth Service** | 4000 | Authentication & Authorization (OIDC/JWT) | ✅ Working |
 | **Order Service** | 5003 | Order processing and management | ⚠️ Check logs |
 
+### Frontend Client
+
+| Application | Port | Description | Status |
+|-------------|------|-------------|--------|
+| **Next.js Client** | 3000 | Modern e-commerce UI with SSR & Redux Toolkit | ✅ Ready |
+
 ## 🛠️ Technology Stack
 
+### Backend
 - **Framework:** NestJS (Node.js/TypeScript)
 - **Database:** MongoDB Atlas (Cloud) + Local MongoDB (Docker)
 - **Message Queue:** Apache Kafka
 - **Caching:** Redis
 - **Search:** Elasticsearch (Product Service)
 - **Containerization:** Docker & Docker Compose
+
+### Frontend
+- **Framework:** Next.js 14 (App Router)
+- **State Management:** Redux Toolkit
+- **Rendering:** Server-Side Rendering (SSR)
+- **Styling:** Tailwind CSS
+- **Language:** TypeScript
+- **HTTP Client:** Axios
 
 ## 🚀 Quick Start
 
@@ -65,6 +82,12 @@ npm run start:all
 
 Once all services are running:
 
+### Frontend
+| Application | URL |
+|-------------|-----|
+| **Next.js Client** | http://localhost:3000 |
+
+### Backend APIs
 | Service | URL |
 |---------|-----|
 | User API | http://localhost:3001/users |
@@ -72,6 +95,10 @@ Once all services are running:
 | Inventory API | http://localhost:3003/api |
 | Auth OIDC Config | http://localhost:4000/.well-known/openid-configuration |
 | Order API Docs | http://localhost:5003/docs |
+
+### Infrastructure
+| Service | URL |
+|---------|-----|
 | Kafka UI | http://localhost:8080 |
 
 ## 🔧 Configuration
@@ -92,18 +119,39 @@ To change the database URI, edit `config.env.ps1` or `config.env.sh`.
 
 ## 📦 Available Scripts
 
+### Full Stack
 ```bash
-# Start all services
-npm run start:all
+# Install all dependencies (backend + frontend)
+npm run install:all
 
+# Start all backend services
+npm run start:all
+```
+
+### Frontend Client
+```bash
+# Start Next.js client
+cd client
+npm run dev           # Development mode
+npm run build        # Production build
+npm run start        # Production server
+
+# Or use the startup scripts
+# Windows:
+.\client\start-client.ps1
+
+# Linux/Mac:
+chmod +x client/start-client.sh
+./client/start-client.sh
+```
+
+### Backend Services
+```bash
 # Start infrastructure only (MongoDB, Redis, Kafka)
 npm run start:infrastructure
 
 # Stop infrastructure
 npm run stop:infrastructure
-
-# Install all service dependencies
-npm run install:all
 
 # Build all services
 npm run build:all
@@ -201,16 +249,53 @@ curl -X POST http://localhost:3002/products \
   }'
 ```
 
-## 🔒 Security Notes
+## 🔒 Security & Authentication
 
-⚠️ **Development Environment:** The current setup is configured for development with credentials in plain text.
+### OAuth2 & OpenID Connect ✅
+
+The platform now includes a **complete OAuth2/OIDC authorization server**:
+
+- ✅ **OAuth2 Authorization Code Flow** with PKCE
+- ✅ **OpenID Connect** with ID tokens
+- ✅ **JWT-based authentication** for all microservices
+- ✅ **Token introspection & revocation**
+- ✅ **User registration & login**
+- ✅ **Session management** with Redis
+- ✅ **Role-based access control**
+
+**Quick Start:**
+```bash
+# See OAuth2/OIDC implementation
+cat OAUTH2_IMPLEMENTATION_SUMMARY.md
+
+# Detailed guide
+cat services/auth/OAUTH2_OIDC_GUIDE.md
+
+# Integration examples
+cat services/auth/INTEGRATION_EXAMPLES.md
+```
+
+**Key Endpoints:**
+- Discovery: http://localhost:4000/.well-known/openid-configuration
+- JWKS: http://localhost:4000/.well-known/jwks.json
+- Login: http://localhost:4000/auth/login
+- Register: http://localhost:4000/auth/register
+
+### Production Security Checklist
+
+⚠️ **Development Environment:** The current setup is configured for development.
 
 For **production**:
-- Use environment variables from secure secret management
-- Enable authentication for all infrastructure services
-- Configure MongoDB Atlas IP whitelist
-- Use proper SSL/TLS certificates
-- Rotate credentials regularly
+- ✅ Use HTTPS everywhere
+- ✅ Use environment variables from secure secret management
+- ✅ Enable authentication for all infrastructure services
+- ✅ Configure MongoDB Atlas IP whitelist
+- ✅ Use proper SSL/TLS certificates
+- ✅ Rotate credentials and signing keys regularly
+- ✅ Implement rate limiting
+- ✅ Set up monitoring and alerting
+- ✅ Use strong client secrets
+- ✅ Enable audit logging
 
 ## 🛑 Stopping Services
 
@@ -236,24 +321,132 @@ docker-compose down
 
 ```
 ecom_microservice-master/
-├── services/
-│   ├── auth/           # Authentication service
-│   ├── user/           # User management service
-│   ├── product/        # Product catalog service
-│   ├── inventory/      # Inventory management service
-│   ├── order/          # Order processing service
-│   ├── cart/           # (Not implemented)
-│   └── payment/        # (Not implemented)
+├── client/                      # 🆕 Next.js Frontend
+│   ├── app/                     # Next.js App Router
+│   │   ├── layout.tsx          # Root layout with Redux
+│   │   ├── page.tsx            # Home page (SSR)
+│   │   ├── products/           # Products pages
+│   │   ├── cart/               # Shopping cart
+│   │   ├── orders/             # Order history
+│   │   └── login/              # Authentication
+│   ├── components/             # React components
+│   ├── lib/                    # Business logic
+│   │   ├── api/                # API integration
+│   │   └── redux/              # Redux Toolkit setup
+│   ├── package.json
+│   ├── README.md               # Client documentation
+│   ├── SSR_REDUX_GUIDE.md     # Learning guide
+│   └── EXERCISE_GUIDE.md      # Exercises
+├── services/                   # Backend Microservices
+│   ├── auth/                   # Authentication service
+│   ├── user/                   # User management service
+│   ├── product/                # Product catalog service
+│   ├── inventory/              # Inventory management service
+│   ├── order/                  # Order processing service
+│   ├── cart/                   # (Not implemented)
+│   └── payment/                # (Not implemented)
 ├── scripts/
-│   └── start-all.js    # Node.js startup script
-├── config.env.ps1      # Windows configuration
-├── config.env.sh       # Linux/Mac configuration
-├── start-all-services.ps1  # Windows startup script
-├── start-all-services.sh   # Linux/Mac startup script
-├── stop-all-services.ps1   # Windows stop script
-├── stop-all-services.sh    # Linux/Mac stop script
-└── package.json        # Root package.json with scripts
+│   └── start-all.js            # Node.js startup script
+├── config.env.ps1              # Windows configuration
+├── config.env.sh               # Linux/Mac configuration
+├── start-all-services.ps1      # Windows startup script
+├── start-all-services.sh       # Linux/Mac startup script
+├── stop-all-services.ps1       # Windows stop script
+├── stop-all-services.sh        # Linux/Mac stop script
+└── package.json                # Root package.json with scripts
 ```
+
+## 🎨 Next.js Frontend Client (NEW!)
+
+### Features
+
+The client application demonstrates modern web development practices:
+
+#### 🚀 Server-Side Rendering (SSR)
+- **SEO Optimized** - All content is crawlable by search engines
+- **Faster First Paint** - Content rendered on the server
+- **Better Performance** - Improved Core Web Vitals
+- **Social Sharing** - Rich previews on social media
+
+#### 🔄 Redux Toolkit State Management
+- **Centralized State** - Predictable state updates
+- **Async Thunks** - Handle API calls efficiently
+- **TypeScript Support** - Full type safety
+- **DevTools Integration** - Easy debugging
+
+#### ✨ Key Features
+- 🛍️ Product catalog with search and filtering
+- 🛒 Shopping cart with persistent storage (localStorage)
+- 👤 User authentication (login/register)
+- 📦 Order management
+- 🎨 Modern UI with Tailwind CSS
+- ⚡ Fast navigation with App Router
+- 📱 Fully responsive design
+
+### Quick Start - Frontend
+
+```bash
+# 1. Navigate to client directory
+cd client
+
+# 2. Install dependencies (if not already done)
+npm install
+
+# 3. Start development server
+npm run dev
+
+# 4. Open browser
+# Visit: http://localhost:3000
+```
+
+### Client Architecture
+
+**App Router Structure:**
+- `/` - Home page with featured products (SSR)
+- `/products` - Product listing with search (SSR + Client)
+- `/cart` - Shopping cart (Client-side)
+- `/orders` - Order history (Protected route)
+- `/login` - Authentication page
+
+**Redux Store:**
+- `authSlice` - Authentication state
+- `productSlice` - Product catalog with async thunks
+- `cartSlice` - Shopping cart with localStorage
+- `orderSlice` - Order management
+
+**API Integration:**
+- Axios clients for each microservice
+- Automatic JWT token injection
+- Error handling and interceptors
+- TypeScript interfaces
+
+### Learning Resources
+
+📚 **Documentation:**
+- `client/README.md` - Complete client documentation
+- `client/SSR_REDUX_GUIDE.md` - In-depth SSR & Redux guide
+- `client/EXERCISE_GUIDE.md` - Hands-on exercises
+
+### Testing the Full Stack
+
+1. **Start Backend Services:**
+   ```bash
+   .\start-all-services.ps1  # Windows
+   ./start-all-services.sh    # Linux/Mac
+   ```
+
+2. **Start Frontend Client:**
+   ```bash
+   cd client
+   npm run dev
+   ```
+
+3. **Test the Application:**
+   - Visit http://localhost:3000
+   - Browse products (data fetched from Product Service)
+   - Add items to cart (persisted in localStorage)
+   - Login/Register (Auth Service)
+   - View orders (Order Service)
 
 ## 🤝 Contributing
 
@@ -262,6 +455,12 @@ Each service follows Domain-Driven Design (DDD) principles with:
 - **Application Layer:** Use cases, DTOs
 - **Infrastructure Layer:** Database, messaging, external services
 - **Presentation Layer:** Controllers, HTTP endpoints
+
+The frontend follows modern React patterns:
+- **Server Components** for SSR and data fetching
+- **Client Components** for interactivity
+- **Redux Toolkit** for state management
+- **API Layer** for backend integration
 
 ## 📝 License
 

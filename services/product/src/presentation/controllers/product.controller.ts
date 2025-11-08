@@ -124,17 +124,30 @@ export class ProductController {
     type: Number,
     example: 5000,
   })
+  // page
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+  })
   @ApiResponse({ status: 200, description: 'Products fetched successfully' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async list(@Query() filters: FilterProductDto) {
     try {
-      const products = await this.listProducts.execute(filters);
+      const result = await this.listProducts.execute(filters);
 
       return {
         success: true,
         message: 'Products fetched successfully',
-        count: products.length,
-        data: products,
+        data: result.products,
+        pagination: result.pagination,
       };
     } catch (error: any) {
       throw new HttpException(

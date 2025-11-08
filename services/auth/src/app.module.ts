@@ -9,6 +9,7 @@ import { JwksModule } from './infrastructure/jwks/jwks.module';
 
 import { OidcController } from './presentation/controllers/oidc.controller';
 import { AdminController } from './presentation/controllers/admin.controller';
+import { AuthController } from './presentation/controllers/auth.controller';
 
 import { MongooseSchemasModule } from './infrastructure/database/database.module';
 
@@ -41,8 +42,8 @@ import { AuthProvidersModule } from './infrastructure/providers/auth-providers.m
     AuthProvidersModule,
   ],
 
-  // ✅ OIDC controller + admin API (key rotation, client mgmt, introspect, etc.)
-  controllers: [OidcController, AdminController],
+  // ✅ OIDC controller + admin API + auth endpoints
+  controllers: [OidcController, AdminController, AuthController],
 
   // ✅ No providers here — use dedicated providers module
   providers: [],

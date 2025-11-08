@@ -27,6 +27,7 @@ echo -e "Product Service: http://localhost:3002"
 echo -e "Inventory Service: http://localhost:3003"
 echo -e "Order Service: http://localhost:5003"
 echo -e "Kafka UI: http://localhost:8080"
+echo -e "Client (Next.js):   http://localhost:3000"
 
 # Show logs
 echo -e "${YELLOW}Showing logs...${NC}"

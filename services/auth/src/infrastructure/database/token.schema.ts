@@ -3,11 +3,8 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Token extends Document {
-  @Prop({ required: true })
-  accessToken: string;
-
-  @Prop({ required: true })
-  refreshToken: string;
+  @Prop({ required: true, unique: true, index: true })
+  refreshTokenHash: string;
 
   @Prop({ required: true })
   clientId: string;
@@ -21,10 +18,8 @@ export class Token extends Document {
   @Prop({ required: true })
   expiresAt: Date;
 
-
   @Prop({ default: false })
   revoked: boolean;
-
 }
 
 export const TokenSchema = SchemaFactory.createForClass(Token);

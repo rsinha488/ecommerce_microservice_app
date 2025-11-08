@@ -23,11 +23,27 @@ export class ListProductsUseCase {
       // ✅ Step 1 — Validate filter rules (domain-level validation)
       this.domainService.validateListFilters(filter);
 
-      // ✅ Step 2 — Query DB
+      // ✅ Step 2 — Query DB with pagination
       const products = await this.productRepository.findAll(filter);
+      const total = await this.productRepository.count(filter);
+
+      // ✅ Calculate pagination metadata
+      const page = filter.page || 1;
+      const limit = filter.limit || 10;
+      const totalPages = Math.ceil(total / limit);
 
       // ✅ Step 3 — Map domain → response model
-      return products.map((product) => this.mapper.toResponse(product));
+      return {
+        products: products.map((product) => this.mapper.toResponse(product)),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      };
     } catch (error) {
       throw new HttpException(
         {

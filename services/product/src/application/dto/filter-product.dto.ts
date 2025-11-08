@@ -1,6 +1,7 @@
 // src/application/dto/filter-product.dto.ts
 
 import { IsOptional, IsString, IsNumberString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class FilterProductDto {
   @IsOptional()
@@ -19,4 +20,13 @@ export class FilterProductDto {
   @IsOptional()
   @IsNumberString()
   maxPrice?: string;
+
+  // ✅ Pagination - Transform string to number from query params
+  @IsOptional()
+  @Type(() => Number)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  limit?: number;
 }

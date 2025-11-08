@@ -12,7 +12,7 @@ import { HealthController } from './presentation/health/health.controller';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [productConfig],
-      envFilePath: ['.env'],
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`],
       validationSchema: validationSchema,
       validationOptions: {
         abortEarly: true,
@@ -20,9 +20,7 @@ import { HealthController } from './presentation/health/health.controller';
     }),
 
     // ✅ Database connection at service-root level (DDD rule)
-    MongooseModule.forRoot(process.env.MONGO_URI!, {
-      dbName: process.env.PRODUCT_DB_NAME || 'products_db',
-    }),
+    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/products_db'),
 
     // ✅ Product bounded-context module
     ProductModule,
