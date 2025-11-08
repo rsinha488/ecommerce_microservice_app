@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // ✅ Allows using shared common package
+    "paths": {
+    },
+
+    // ✅ Required for NestJS decorators
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+
+    // ✅ Fixes: “Property ____ has no initializer”
+    "strictPropertyInitialization": false,
+
+    // ✅ Fixes: domain mappers returning null
+    "strictNullChecks": false,
+
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test"]
+  
+}

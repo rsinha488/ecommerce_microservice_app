@@ -1,0 +1,18 @@
+{
+"compilerOptions": {
+"module": "commonjs",
+"rootDir": "./src",
+"moduleResolution": "node",
+"esModuleInterop": true,
+"emitDecoratorMetadata": true,
+"experimentalDecorators": true,
+"outDir": "./dist",
+"target": "ES2021",
+"composite": true,
+"incremental": true,
+"tsBuildInfoFile": "./dist/.tsbuildinfo",
+"skipLibCheck": true
+},
+"include": ["src/**/*"],
+"exclude": ["node_modules", "dist"]
+}

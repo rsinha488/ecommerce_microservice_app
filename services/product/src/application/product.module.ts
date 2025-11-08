@@ -1,0 +1,30 @@
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ProductController } from '../presentation/controllers/product.controller';
+import { CreateProductUseCase } from './use-cases/create-product.usecase';
+import { UpdateProductUseCase } from './use-cases/update-product.usecase';
+import { GetProductUseCase } from './use-cases/get-product.usecase';
+import { ListProductsUseCase } from './use-cases/list-products.usecase';
+import { ProductDomainService } from '../domain/services/product-domain.service';
+import { PRODUCT_REPOSITORY } from '../domain/interfaces/product-repository.interface';
+import { ProductRepository } from '../infrastructure/repositories/product.repository';
+import { ProductModel, ProductSchema } from '../infrastructure/database/product.schema';
+import { ProductMapper } from '../infrastructure/mappers/product.mapper';
+import { ProductProducer } from '../infrastructure/events/product.producer';
+
+@Module({
+  imports: [MongooseModule.forFeature([{ name: ProductModel.name, schema: ProductSchema }])],
+  controllers: [ProductController],
+  providers: [
+    CreateProductUseCase,
+    UpdateProductUseCase,
+    GetProductUseCase,
+    ListProductsUseCase,
+    ProductDomainService,
+    ProductMapper,
+    ProductProducer,
+    { provide: PRODUCT_REPOSITORY, useClass: ProductRepository }
+  ],
+  exports: [PRODUCT_REPOSITORY]
+})
+export class ProductModule {}

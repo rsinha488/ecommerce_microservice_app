@@ -1,0 +1,191 @@
+version: '3.8'
+
+services:
+  # -----------------------------------------------------
+  # Infrastructure Services
+  # -----------------------------------------------------
+  mongo:
+    image: mongo:7
+    container_name: ecom-mongo
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ecom-net
+
+  redis:
+    image: redis:7
+    container_name: ecom-redis
+    restart: always
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - ecom-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: ecom-zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - ecom-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: ecom-kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - ecom-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: ecom-kafka-ui
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - ecom-net
+
+  # -----------------------------------------------------
+  # Microservices
+  # -----------------------------------------------------
+  auth-service:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: ecom-auth-service
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - MONGO_URI=mongodb://mongo:27017/auth-service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - mongo
+      - redis
+      - kafka
+    networks:
+      - ecom-net
+
+  product-service:
+    build:
+      context: ./services/product
+      dockerfile: Dockerfile
+    container_name: ecom-product-service
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGO_URI=mongodb://mongo:27017/product-service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - mongo
+      - redis
+      - kafka
+    networks:
+      - ecom-net
+
+  inventory-service:
+    build:
+      context: ./services/inventory
+      dockerfile: Dockerfile
+    container_name: ecom-inventory-service
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - MONGO_URI=mongodb://mongo:27017/inventory-service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - mongo
+      - redis
+      - kafka
+    networks:
+      - ecom-net
+
+  order-service:
+    build:
+      context: ./services/order
+      dockerfile: Dockerfile
+    container_name: ecom-order-service
+    restart: always
+    ports:
+      - "5003:5003"
+    environment:
+      - NODE_ENV=development
+      - PORT=5003
+      - MONGO_URI=mongodb://mongo:27017/order-service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - mongo
+      - redis
+      - kafka
+    networks:
+      - ecom-net
+
+  user-service:
+    build:
+      context: ./services/user
+      dockerfile: Dockerfile
+    container_name: ecom-user-service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo:27017/user-service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - mongo
+      - redis
+      - kafka
+    networks:
+      - ecom-net
+
+networks:
+  ecom-net:
+    driver: bridge
+
+volumes:
+  mongo_data:

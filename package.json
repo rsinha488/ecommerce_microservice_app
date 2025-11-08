@@ -1,0 +1,48 @@
+{
+  "name": "ecom-microservices",
+  "version": "1.0.0",
+  "description": "E-commerce Microservices Platform",
+  "scripts": {
+    "start:all": "node scripts/start-all.js",
+    "start:infrastructure": "cd services/inventory && docker-compose up -d",
+    "stop:infrastructure": "cd services/inventory && docker-compose down",
+    "start:order": "cd services/order && pnpm run start:dev",
+    "start:product": "cd services/product && pnpm run start:dev",
+    "start:inventory": "cd services/inventory && pnpm run start:dev",
+    "start:auth": "cd services/auth && pnpm run start:dev",
+    "start:user": "cd services/user && pnpm run start:dev",
+    "build:all": "pnpm run build:order && pnpm run build:product && pnpm run build:inventory && pnpm run build:auth && pnpm run build:user",
+    "build:order": "cd services/order && pnpm run build",
+    "build:product": "cd services/product && pnpm run build",
+    "build:inventory": "cd services/inventory && pnpm run build",
+    "build:auth": "cd services/auth && pnpm run build",
+    "build:user": "cd services/user && pnpm run build",
+    "install:all": "pnpm run install:order && pnpm run install:product && pnpm run install:inventory && pnpm run install:auth && pnpm run install:user",
+    "install:order": "cd services/order && pnpm install",
+    "install:product": "cd services/product && pnpm install",
+    "install:inventory": "cd services/inventory && pnpm install",
+    "install:auth": "cd services/auth && pnpm install",
+    "install:user": "cd services/user && pnpm install",
+    "test:all": "npm run test:order && npm run test:product && npm run test:inventory && npm run test:auth && npm run test:user",
+    "test:order": "cd services/order && npm test",
+    "test:product": "cd services/product && npm test",
+    "test:inventory": "cd services/inventory && npm test",
+    "test:auth": "cd services/auth && npm test",
+    "test:user": "cd services/user && npm test"
+  },
+  "keywords": [
+    "microservices",
+    "ecommerce",
+    "nestjs",
+    "kafka",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
