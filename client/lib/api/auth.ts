@@ -13,9 +13,8 @@ export interface RegisterRequest {
 
 export interface LoginResponse {
   session_id: string;
-  access_token?: string;
-  token_type?: string;
-  expires_in?: number;
+  user_id: string;
+  success: boolean;
 }
 
 export interface UserInfoResponse {
@@ -24,6 +23,14 @@ export interface UserInfoResponse {
   name: string;
   role?: string;
   sub?: string;
+}
+
+export interface SessionResponse {
+  valid: boolean;
+  session: {
+    user: UserInfoResponse;
+    sessionId: string;
+  };
 }
 
 export const authApi = {
@@ -37,30 +44,12 @@ export const authApi = {
     return response.data;
   },
 
-  getUserInfo: async (token: string): Promise<UserInfoResponse> => {
-    const response = await authClient.get('/auth/userinfo', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  getSession: async (): Promise<SessionResponse> => {
+    const response = await authClient.get('/auth/session');
     return response.data;
   },
 
   logout: async (): Promise<void> => {
-    // Call logout endpoint if available
-    try {
-      await authClient.post('/auth/logout');
-    } catch (error) {
-      // Ignore errors on logout
-    }
-  },
-
-  refreshToken: async (refreshToken: string): Promise<LoginResponse> => {
-    const response = await authClient.post('/auth/token', {
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-    });
-    return response.data;
+    await authClient.post('/auth/logout');
   },
 };
-

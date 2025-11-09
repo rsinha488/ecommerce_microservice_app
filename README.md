@@ -1,490 +1,156 @@
 # E-commerce Microservices Platform
 
-A complete microservices-based e-commerce platform built with NestJS, MongoDB Atlas, Kafka, Redis, and a modern Next.js frontend.
-
-## 🏗️ Architecture
-
-This project consists of 5 backend microservices and a Next.js frontend:
-
-### Backend Services
-
-| Service | Port | Description | Status |
-|---------|------|-------------|--------|
-| **User Service** | 3001 | User management and profiles | ✅ Working |
-| **Product Service** | 3002 | Product catalog with Elasticsearch | ✅ Working |
-| **Inventory Service** | 3003 | Stock and inventory management | ⚠️ Check logs |
-| **Auth Service** | 4000 | Authentication & Authorization (OIDC/JWT) | ✅ Working |
-| **Order Service** | 5003 | Order processing and management | ⚠️ Check logs |
-
-### Frontend Client
-
-| Application | Port | Description | Status |
-|-------------|------|-------------|--------|
-| **Next.js Client** | 3000 | Modern e-commerce UI with SSR & Redux Toolkit | ✅ Ready |
-
-## 🛠️ Technology Stack
-
-### Backend
-- **Framework:** NestJS (Node.js/TypeScript)
-- **Database:** MongoDB Atlas (Cloud) + Local MongoDB (Docker)
-- **Message Queue:** Apache Kafka
-- **Caching:** Redis
-- **Search:** Elasticsearch (Product Service)
-- **Containerization:** Docker & Docker Compose
-
-### Frontend
-- **Framework:** Next.js 14 (App Router)
-- **State Management:** Redux Toolkit
-- **Rendering:** Server-Side Rendering (SSR)
-- **Styling:** Tailwind CSS
-- **Language:** TypeScript
-- **HTTP Client:** Axios
+A modern e-commerce platform built with microservices architecture, featuring secure authentication using HTTP-only cookies.
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- ✅ Node.js 18+ 
-- ✅ Docker Desktop
-- ✅ npm or pnpm
-
-### 1. Install Dependencies
-
-```powershell
-npm run install:all
-```
-
-### 2. Start All Services
-
-**Windows (PowerShell):**
-```powershell
-.\start-all-services.ps1
-```
-
-**Linux/Mac (Bash):**
+### Start All Services (Recommended)
 ```bash
-chmod +x start-all-services.sh
-./start-all-services.sh
+./start.sh
 ```
 
-**Node.js (Cross-platform):**
+This will start all microservices and the Next.js client application in Docker containers.
+
+### Individual Service Development
+
+#### Start Microservices Only
 ```bash
-npm run start:all
+docker-compose up --build -d
 ```
 
-### 3. Check Service Status
-
-```powershell
-.\check-services-status.ps1
-```
-
-## 🌐 Access Points
-
-Once all services are running:
-
-### Frontend
-| Application | URL |
-|-------------|-----|
-| **Next.js Client** | http://localhost:3000 |
-
-### Backend APIs
-| Service | URL |
-|---------|-----|
-| User API | http://localhost:3001/users |
-| Product API | http://localhost:3002/products |
-| Inventory API | http://localhost:3003/api |
-| Auth OIDC Config | http://localhost:4000/.well-known/openid-configuration |
-| Order API Docs | http://localhost:5003/docs |
-
-### Infrastructure
-| Service | URL |
-|---------|-----|
-| Kafka UI | http://localhost:8080 |
-
-## 🔧 Configuration
-
-All environment variables are centralized in configuration files:
-
-- **Windows:** `config.env.ps1`
-- **Linux/Mac:** `config.env.sh`
-
-### MongoDB Configuration
-
-Currently using **MongoDB Atlas** (cloud database):
-```
-mongodb+srv://ruchishestabit_db_user:39763976@cluster0.ejp03r8.mongodb.net
-```
-
-To change the database URI, edit `config.env.ps1` or `config.env.sh`.
-
-## 📦 Available Scripts
-
-### Full Stack
+#### Start Next.js Client Separately (Development Mode)
 ```bash
-# Install all dependencies (backend + frontend)
-npm run install:all
-
-# Start all backend services
-npm run start:all
-```
-
-### Frontend Client
-```bash
-# Start Next.js client
 cd client
-npm run dev           # Development mode
-npm run build        # Production build
-npm run start        # Production server
-
-# Or use the startup scripts
-# Windows:
-.\client\start-client.ps1
-
-# Linux/Mac:
-chmod +x client/start-client.sh
-./client/start-client.sh
+./start-client.sh  # Linux/Mac
+# OR
+./start-client.ps1  # Windows
 ```
 
-### Backend Services
-```bash
-# Start infrastructure only (MongoDB, Redis, Kafka)
-npm run start:infrastructure
+## 📋 Services
 
-# Stop infrastructure
-npm run stop:infrastructure
+| Service | Port | Description |
+|---------|------|-------------|
+| Auth Service | 4000 | Authentication & Authorization |
+| User Service | 3001 | User management |
+| Product Service | 3002 | Product catalog |
+| Inventory Service | 3003 | Inventory management |
+| Order Service | 5003 | Order processing |
+| Next.js Client | 3000 | Frontend application |
+| MongoDB | 27018 | Database |
+| Redis | 6380 | Cache & Sessions |
+| Kafka | 9092 | Message broker |
+| Kafka UI | 8080 | Kafka management UI |
 
-# Build all services
-npm run build:all
+## 🔐 Authentication
 
-# Start individual services
-npm run start:order
-npm run start:product
-npm run start:inventory
-npm run start:auth
-npm run start:user
+The platform uses production-ready authentication with:
+- **HTTP-only cookies** for secure token storage
+- **Server-side session management** in Redis
+- **Route protection** via Next.js middleware
+- **Automatic redirects** for unauthenticated users
+
+### Authentication Flow
+1. User logs in → Server sets HTTP-only cookie
+2. Protected routes check for valid session
+3. Invalid/expired sessions redirect to login
+4. Logout clears server-side session and cookie
+
+## 🛠️ Development
+
+### Prerequisites
+- Docker & Docker Compose
+- Node.js 18+ (for local client development)
+
+### Environment Variables
+Services use the following environment variables (configured in docker-compose.yml):
+- `API_*_URL`: Service URLs for inter-service communication
+- `MONGO_URI`: MongoDB connection string
+- `REDIS_HOST/PORT`: Redis configuration
+- `KAFKA_BROKER`: Kafka broker URL
+
+## 🏗️ Architecture
+
 ```
-
-## 🐳 Infrastructure Services
-
-The following services run in Docker containers:
-
-- **MongoDB** - localhost:27017 (optional, using Atlas cloud)
-- **Redis** - localhost:6379
-- **Kafka** - localhost:9092
-- **Zookeeper** - localhost:2181
-- **Kafka UI** - localhost:8080
-
-Start infrastructure:
-```powershell
-cd services/inventory
-docker-compose up -d
+┌─────────────────┐    ┌─────────────────┐
+│   Next.js       │    │   Auth Service  │
+│   Client        │◄──►│   (Port 4000)   │
+│   (Port 3000)   │    └─────────────────┘
+└─────────────────┘            ▲
+        │                      │
+        ▼                      ▼
+┌─────────────────┐    ┌─────────────────┐
+│ Product Service │    │   User Service  │
+│   (Port 3002)   │    │   (Port 3001)   │
+└─────────────────┘    └─────────────────┘
+        ▲                      ▲
+        │                      │
+        ▼                      ▼
+┌─────────────────┐    ┌─────────────────┐
+│Inventory Service│    │ Order Service   │
+│   (Port 3003)   │    │   (Port 5003)   │
+└─────────────────┘    └─────────────────┘
+        ▲                      ▲
+        └──────────────────────┘
+               Kafka
+               Redis
+               MongoDB
 ```
-
-## 🔍 Troubleshooting
-
-### Services Not Starting
-
-1. **Check PowerShell/Terminal windows** for error messages
-2. **Verify Docker is running:** `.\check-docker.ps1`
-3. **Check if ports are available:** `.\check-services-status.ps1`
-4. **Install missing dependencies:** `cd services/<service-name> && npm install`
-
-### Common Issues
-
-**Port Already in Use:**
-```powershell
-# Windows
-Get-Process node | Stop-Process -Force
-
-# Linux/Mac
-killall node
-```
-
-**Docker Not Running:**
-```powershell
-.\restart-docker.ps1
-```
-
-**Environment Variables Not Loading:**
-```powershell
-# Load configuration manually
-. .\config.env.ps1
-```
-
-## 📚 Documentation
-
-- [START_SERVICES_README.md](START_SERVICES_README.md) - Comprehensive service startup guide
-- [QUICK_FINISH_GUIDE.md](QUICK_FINISH_GUIDE.md) - Quick reference for setup
-- [ENV_CONFIGURATION.md](ENV_CONFIGURATION.md) - Environment configuration details
-- [MONGODB_ATLAS_SETUP.md](MONGODB_ATLAS_SETUP.md) - MongoDB Atlas configuration
 
 ## 🧪 Testing
 
-### Test Working Services
+### Demo Credentials
+- Email: `demo@example.com`
+- Password: `demo123`
 
-```powershell
-# User Service
-curl http://localhost:3001/users
+### Test Authentication Flow
+1. Visit http://localhost:3000
+2. Try accessing `/orders` or `/cart` (should redirect to login)
+3. Login with demo credentials
+4. Should redirect back to intended page
+5. Logout should clear session and redirect to login
 
-# Product Service
-curl http://localhost:3002/products
-
-# Auth Service
-curl http://localhost:4000/.well-known/openid-configuration
-```
-
-### Create a Product
-
-```bash
-curl -X POST http://localhost:3002/products \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Test Product",
-    "sku": "TEST-001",
-    "description": "Test Description",
-    "price": 100,
-    "stock": 50,
-    "category": "test",
-    "images": []
-  }'
-```
-
-## 🔒 Security & Authentication
-
-### OAuth2 & OpenID Connect ✅
-
-The platform now includes a **complete OAuth2/OIDC authorization server**:
-
-- ✅ **OAuth2 Authorization Code Flow** with PKCE
-- ✅ **OpenID Connect** with ID tokens
-- ✅ **JWT-based authentication** for all microservices
-- ✅ **Token introspection & revocation**
-- ✅ **User registration & login**
-- ✅ **Session management** with Redis
-- ✅ **Role-based access control**
-
-**Quick Start:**
-```bash
-# See OAuth2/OIDC implementation
-cat OAUTH2_IMPLEMENTATION_SUMMARY.md
-
-# Detailed guide
-cat services/auth/OAUTH2_OIDC_GUIDE.md
-
-# Integration examples
-cat services/auth/INTEGRATION_EXAMPLES.md
-```
-
-**Key Endpoints:**
-- Discovery: http://localhost:4000/.well-known/openid-configuration
-- JWKS: http://localhost:4000/.well-known/jwks.json
-- Login: http://localhost:4000/auth/login
-- Register: http://localhost:4000/auth/register
-
-### Production Security Checklist
-
-⚠️ **Development Environment:** The current setup is configured for development.
-
-For **production**:
-- ✅ Use HTTPS everywhere
-- ✅ Use environment variables from secure secret management
-- ✅ Enable authentication for all infrastructure services
-- ✅ Configure MongoDB Atlas IP whitelist
-- ✅ Use proper SSL/TLS certificates
-- ✅ Rotate credentials and signing keys regularly
-- ✅ Implement rate limiting
-- ✅ Set up monitoring and alerting
-- ✅ Use strong client secrets
-- ✅ Enable audit logging
-
-## 🛑 Stopping Services
-
-**Stop All Services:**
-```powershell
-# Windows
-.\stop-all-services.ps1
-
-# Linux/Mac
-./stop-all-services.sh
-
-# Or kill all Node processes
-Get-Process node | Stop-Process -Force
-```
-
-**Stop Infrastructure:**
-```powershell
-cd services/inventory
-docker-compose down
-```
-
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
 ecom_microservice-master/
-├── client/                      # 🆕 Next.js Frontend
-│   ├── app/                     # Next.js App Router
-│   │   ├── layout.tsx          # Root layout with Redux
-│   │   ├── page.tsx            # Home page (SSR)
-│   │   ├── products/           # Products pages
-│   │   ├── cart/               # Shopping cart
-│   │   ├── orders/             # Order history
-│   │   └── login/              # Authentication
-│   ├── components/             # React components
-│   ├── lib/                    # Business logic
-│   │   ├── api/                # API integration
-│   │   └── redux/              # Redux Toolkit setup
-│   ├── package.json
-│   ├── README.md               # Client documentation
-│   ├── SSR_REDUX_GUIDE.md     # Learning guide
-│   └── EXERCISE_GUIDE.md      # Exercises
-├── services/                   # Backend Microservices
-│   ├── auth/                   # Authentication service
-│   ├── user/                   # User management service
-│   ├── product/                # Product catalog service
-│   ├── inventory/              # Inventory management service
-│   ├── order/                  # Order processing service
-│   ├── cart/                   # (Not implemented)
-│   └── payment/                # (Not implemented)
-├── scripts/
-│   └── start-all.js            # Node.js startup script
-├── config.env.ps1              # Windows configuration
-├── config.env.sh               # Linux/Mac configuration
-├── start-all-services.ps1      # Windows startup script
-├── start-all-services.sh       # Linux/Mac startup script
-├── stop-all-services.ps1       # Windows stop script
-├── stop-all-services.sh        # Linux/Mac stop script
-└── package.json                # Root package.json with scripts
+├── client/                 # Next.js frontend
+│   ├── app/               # Next.js app router
+│   ├── components/        # React components
+│   ├── lib/              # Utilities & API clients
+│   └── middleware.ts      # Route protection
+├── services/              # Microservices
+│   ├── auth/             # Authentication service
+│   ├── user/             # User management
+│   ├── product/          # Product catalog
+│   ├── inventory/        # Inventory management
+│   └── order/            # Order processing
+├── docker-compose.yml     # All services configuration
+├── start.sh              # Quick start script
+└── README.md
 ```
 
-## 🎨 Next.js Frontend Client (NEW!)
+## 🔒 Security Features
 
-### Features
+- **HTTP-only cookies** prevent XSS attacks
+- **Server-side sessions** in Redis
+- **Route-level protection** via middleware
+- **Automatic token refresh** (cookies sent with requests)
+- **Secure logout** with server-side cleanup
 
-The client application demonstrates modern web development practices:
+## 📊 Monitoring
 
-#### 🚀 Server-Side Rendering (SSR)
-- **SEO Optimized** - All content is crawlable by search engines
-- **Faster First Paint** - Content rendered on the server
-- **Better Performance** - Improved Core Web Vitals
-- **Social Sharing** - Rich previews on social media
-
-#### 🔄 Redux Toolkit State Management
-- **Centralized State** - Predictable state updates
-- **Async Thunks** - Handle API calls efficiently
-- **TypeScript Support** - Full type safety
-- **DevTools Integration** - Easy debugging
-
-#### ✨ Key Features
-- 🛍️ Product catalog with search and filtering
-- 🛒 Shopping cart with persistent storage (localStorage)
-- 👤 User authentication (login/register)
-- 📦 Order management
-- 🎨 Modern UI with Tailwind CSS
-- ⚡ Fast navigation with App Router
-- 📱 Fully responsive design
-
-### Quick Start - Frontend
-
-```bash
-# 1. Navigate to client directory
-cd client
-
-# 2. Install dependencies (if not already done)
-npm install
-
-# 3. Start development server
-npm run dev
-
-# 4. Open browser
-# Visit: http://localhost:3000
-```
-
-### Client Architecture
-
-**App Router Structure:**
-- `/` - Home page with featured products (SSR)
-- `/products` - Product listing with search (SSR + Client)
-- `/cart` - Shopping cart (Client-side)
-- `/orders` - Order history (Protected route)
-- `/login` - Authentication page
-
-**Redux Store:**
-- `authSlice` - Authentication state
-- `productSlice` - Product catalog with async thunks
-- `cartSlice` - Shopping cart with localStorage
-- `orderSlice` - Order management
-
-**API Integration:**
-- Axios clients for each microservice
-- Automatic JWT token injection
-- Error handling and interceptors
-- TypeScript interfaces
-
-### Learning Resources
-
-📚 **Documentation:**
-- `client/README.md` - Complete client documentation
-- `client/SSR_REDUX_GUIDE.md` - In-depth SSR & Redux guide
-- `client/EXERCISE_GUIDE.md` - Hands-on exercises
-
-### Testing the Full Stack
-
-1. **Start Backend Services:**
-   ```bash
-   .\start-all-services.ps1  # Windows
-   ./start-all-services.sh    # Linux/Mac
-   ```
-
-2. **Start Frontend Client:**
-   ```bash
-   cd client
-   npm run dev
-   ```
-
-3. **Test the Application:**
-   - Visit http://localhost:3000
-   - Browse products (data fetched from Product Service)
-   - Add items to cart (persisted in localStorage)
-   - Login/Register (Auth Service)
-   - View orders (Order Service)
+- **Kafka UI**: http://localhost:8080
+- **Service logs**: `docker-compose logs -f [service-name]`
+- **Health checks**: Individual service endpoints
 
 ## 🤝 Contributing
 
-Each service follows Domain-Driven Design (DDD) principles with:
-- **Domain Layer:** Entities, value objects, domain services
-- **Application Layer:** Use cases, DTOs
-- **Infrastructure Layer:** Database, messaging, external services
-- **Presentation Layer:** Controllers, HTTP endpoints
+1. Fork the repository
+2. Create a feature branch
+3. Make changes
+4. Test with `./start.sh`
+5. Submit a pull request
 
-The frontend follows modern React patterns:
-- **Server Components** for SSR and data fetching
-- **Client Components** for interactivity
-- **Redux Toolkit** for state management
-- **API Layer** for backend integration
+## 📄 License
 
-## 📝 License
-
-MIT
-
-## 🔗 Useful Links
-
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- [Apache Kafka](https://kafka.apache.org/)
-- [Docker Documentation](https://docs.docker.com/)
-
----
-
-**Need Help?** Check the documentation files or create an issue.
-
-**Quick Commands:**
-```powershell
-# Start everything
-.\start-all-services.ps1
-
-# Check status
-.\check-services-status.ps1
-
-# Stop everything
-.\stop-all-services.ps1
-```
+This project is licensed under the MIT License.

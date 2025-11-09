@@ -1,6 +1,7 @@
 import { productApi } from '@/lib/api/product';
 import ProductGrid from '@/components/ProductGrid';
-import ProductsClient from '@/components/ProductsClient';
+import { ProductsClient } from '@/components/ProductsClient';
+export const dynamic = "force-dynamic";
 
 // This demonstrates SSR with data fetching
 export default async function ProductsPage({

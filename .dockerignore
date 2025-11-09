@@ -8,3 +8,17 @@ dist
 .next
 .env
 .eslintcache
+**/node_modules
+**/.next
+**/dist
+**/build
+.git
+# .env
+.env.*
+docker-compose.yml
+README.md
+tmp
+**/**/node_modules
+**/**/.next
+**/**/dist
+**/**/build

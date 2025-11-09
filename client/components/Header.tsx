@@ -29,11 +29,16 @@ export default function Header() {
     }
   }, [dispatch]);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.replace('/products');
-    router.refresh();
-
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout on client side even if API call fails
+      dispatch(logout());
+      router.replace('/login');
+    }
   };
 
   return (
@@ -118,4 +123,3 @@ export default function Header() {
     </header>
   );
 }
-

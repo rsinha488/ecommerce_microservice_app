@@ -1,9 +1,14 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
+ARG SKIP_API=true
+ENV SKIP_API=$SKIP_API
+
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
+
+ENV NEXT_PUBLIC_PRODUCT_API=http://product-service:3002
 
 COPY . .
 

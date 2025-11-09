@@ -54,7 +54,7 @@ export const fetchProducts = createAsyncThunk(
   ) => {
     try {
       const response = await productApi.getProducts(params);
-      return response;
+      return response?.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch products');
     }
@@ -78,7 +78,7 @@ export const searchProducts = createAsyncThunk(
   async (query: string, { rejectWithValue }) => {
     try {
       const response = await productApi.searchProducts(query);
-      return response;
+      return response.data || [];
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Search failed');
     }
@@ -145,5 +145,5 @@ const productSlice = createSlice({
 });
 
 export const { clearSelectedProduct, clearError } = productSlice.actions;
-export default productSlice.reducer;
+export const productReducer = productSlice.reducer;
 

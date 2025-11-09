@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { productApi } from '@/lib/api/product';
 import ProductGrid from '@/components/ProductGrid';
 
+export const dynamic = "force-dynamic";
+
 // This is a Server Component with SSR
 export default async function HomePage() {
   // Fetch products on the server

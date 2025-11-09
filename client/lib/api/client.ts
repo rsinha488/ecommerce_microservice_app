@@ -4,6 +4,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 const API_URLS = {
   auth: process.env.API_AUTH_URL || 'http://localhost:4000',
   user: process.env.API_USER_URL || 'http://localhost:3001',
+  // product: process.env.NEXT_PUBLIC_PRODUCT_API || "http://localhost:3002",
   product: process.env.API_PRODUCT_URL || 'http://localhost:3002',
   inventory: process.env.API_INVENTORY_URL || 'http://localhost:3003',
   order: process.env.API_ORDER_URL || 'http://localhost:5003',
@@ -19,32 +20,14 @@ const createApiClient = (baseURL: string): AxiosInstance => {
     timeout: 10000,
   });
 
-  // Request interceptor to add auth token
-  client.interceptors.request.use(
-    (config) => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-
   // Response interceptor for error handling
   client.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        // Handle unauthorized access
+        // Handle unauthorized access - redirect to login
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
-          // Optionally redirect to login
-          // window.location.href = '/login';
+          window.location.href = '/login';
         }
       }
       return Promise.reject(error);
@@ -61,11 +44,11 @@ export const productClient = createApiClient(API_URLS.product);
 export const inventoryClient = createApiClient(API_URLS.inventory);
 export const orderClient = createApiClient(API_URLS.order);
 
-export default {
+ const apiClients = {
   auth: authClient,
   user: userClient,
   product: productClient,
   inventory: inventoryClient,
   order: orderClient,
 };
-
+export default apiClients;

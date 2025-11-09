@@ -10,7 +10,6 @@ export interface User {
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -18,7 +17,6 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: null,
   isAuthenticated: false,
   loading: false,
   error: null,
@@ -30,12 +28,6 @@ export const login = createAsyncThunk(
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await authApi.login(credentials);
-      if (response.access_token) {
-        // Store token in localStorage for persistence
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('token', response.access_token);
-        }
-      }
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -56,23 +48,13 @@ export const register = createAsyncThunk(
 );
 
 export const logout = createAsyncThunk('auth/logout', async () => {
-  if (typeof window !== 'undefined') {
-    
-    localStorage.removeItem('token');
-  }
+  await authApi.logout();
 });
 
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
   try {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
-      const response = await authApi.getUserInfo(token);
-      return { user: response, token };
-    }
-    throw new Error('Not in browser environment');
+    const response = await authApi.getSession();
+    return { user: response.session.user };
   } catch (error: any) {
     return rejectWithValue(error.message || 'Authentication check failed');
   }
@@ -82,9 +64,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
+    setCredentials: (state, action: PayloadAction<{ user: User }>) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
       state.isAuthenticated = true;
     },
     clearError: (state) => {
@@ -100,7 +81,6 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.access_token;
         state.isAuthenticated = true;
         state.error = null;
       })
@@ -124,7 +104,6 @@ const authSlice = createSlice({
       // Logout
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
-        state.token = null;
         state.isAuthenticated = false;
       })
       // Check Auth
@@ -134,13 +113,11 @@ const authSlice = createSlice({
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
         state.isAuthenticated = true;
       })
       .addCase(checkAuth.rejected, (state) => {
         state.loading = false;
         state.user = null;
-        state.token = null;
         state.isAuthenticated = false;
       });
   },
@@ -148,4 +125,3 @@ const authSlice = createSlice({
 
 export const { setCredentials, clearError } = authSlice.actions;
 export default authSlice.reducer;
-

@@ -2,7 +2,8 @@ import { productClient } from './client';
 import { Product } from '../redux/slices/productSlice';
 
 export interface ProductsResponse {
-  products: Product[];
+  success: boolean;
+  data: Product[];
   pagination?: {
     page: number;
     limit: number;
@@ -29,7 +30,7 @@ export const productApi = {
     return response.data;
   },
 
-  searchProducts: async (query: string): Promise<Product[]> => {
+  searchProducts: async (query: string): Promise<ProductsResponse> => {
     const response = await productClient.get('/products', {
       params: { search: query },
     });

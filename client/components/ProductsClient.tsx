@@ -10,7 +10,7 @@ interface ProductsClientProps {
   initialProducts: Product[];
 }
 
-export default function ProductsClient({ initialProducts }: ProductsClientProps) {
+export function ProductsClient({ initialProducts }: ProductsClientProps) {
   const dispatch = useAppDispatch();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,7 +30,8 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
     setIsSearching(true);
     try {
       const results = await dispatch(searchProducts(searchQuery)).unwrap();
-      setProducts(results?.data || []);
+      
+      setProducts(results||[]);
     } catch (error) {
       console.error('Search error:', error);
     } finally {
