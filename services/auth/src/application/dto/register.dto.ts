@@ -67,7 +67,6 @@ export class RegisterDto {
     maxLength: 100,
   })
   @IsString({ message: 'Name must be a string' })
-  @IsOptional()
   @MaxLength(100, { message: 'Name cannot exceed 100 characters' })
   name: string;
 

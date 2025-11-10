@@ -31,14 +31,14 @@ export interface RegisterResponse {
   user: {
     id: string;
     email: string;
-    profile?: Record<string, any>;
+    profile: { name: string };
   };
 }
 
 export interface UserInfoResponse {
   id: string;
   email: string;
-  name?: string;
+  profile: { name: string };
   role?: string;
   sub?: string;
 }

@@ -7,7 +7,7 @@ import { authApi, ApiError } from '@/lib/api/auth';
 export interface User {
   id: string;
   email: string;
-  name?: string;
+  profile: { name: string };
   role?: string;
 }
 

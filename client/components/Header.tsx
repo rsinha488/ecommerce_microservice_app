@@ -181,7 +181,7 @@ export default function Header() {
                   <span className="text-sm text-gray-700">
                     Hello,{' '}
                     <span className="font-medium">
-                      {user?.name || user?.email?.split('@')[0] || 'User'}
+                      {user?.profile?.name || user?.email?.split('@')[0] || 'User'}
                     </span>
                   </span>
                 </div>
@@ -279,7 +279,7 @@ export default function Header() {
               {isAuthenticated && (
                 <div className="pt-4 border-t border-gray-200">
                   <span className="text-sm text-gray-600">
-                    Signed in as {user?.name || user?.email?.split('@')[0] || 'User'}
+                    Signed in as {user?.profile?.name || user?.email?.split('@')[0] || 'User'}
                   </span>
                 </div>
               )}

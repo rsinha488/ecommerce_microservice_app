@@ -23,7 +23,7 @@ export class RegisterUseCase {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepo: AuthRepositoryInterface,
-  ) {}
+  ) { }
 
   /**
    * Execute user registration
@@ -56,6 +56,11 @@ export class RegisterUseCase {
 
     if (!data.password || typeof data.password !== 'string' || data.password.length === 0) {
       throw new BadRequestException('Password is required and must be a non-empty string');
+    }
+
+    // Input validation
+    if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
+      throw new BadRequestException('Name is required and must be a non-empty string');
     }
 
     // Email format validation

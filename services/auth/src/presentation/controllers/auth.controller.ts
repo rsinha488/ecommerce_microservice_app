@@ -101,6 +101,7 @@ export class RegisterResponse extends AuthSuccessResponse {
   user: {
     id: string;
     email: string;
+    name: string;
     profile?: Record<string, any>;
   };
 }
@@ -353,6 +354,7 @@ export class AuthController {
         success: true,
         user: {
           id: user.id,
+          name: user.name,
           email: user.email,
           profile: user.profile,
         },
