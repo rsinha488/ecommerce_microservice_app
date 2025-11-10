@@ -10,7 +10,7 @@ export class ProxyService {
   private readonly serviceUrls = {
     auth: process.env.AUTH_SERVICE_URL || 'http://localhost:4000',
     user: process.env.USER_SERVICE_URL || 'http://user-service:3001',
-    product: process.env.PRODUCT_SERVICE_URL || 'http://product-service:3002',
+    product: process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002',
     inventory: process.env.INVENTORY_SERVICE_URL || 'http://inventory-service:3003',
     order: process.env.ORDER_SERVICE_URL || 'http://order-service:5003',
   };

@@ -32,7 +32,7 @@ export default async function ProductsPage({
   return (
     <div className="container-custom py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">All Products</h1>
+        <h1 className="text-4xl font-bold text-gray-300 mb-2">All Products</h1>
         <p className="text-gray-600">
           Browse our complete collection (Server-Side Rendered)
         </p>

@@ -47,7 +47,7 @@ export default function CartPage() {
       <div className="container-custom py-12">
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🛒</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
+          <h1 className="text-3xl font-bold text-gray-300 mb-4">Your Cart is Empty</h1>
           <p className="text-gray-600 mb-8">Add some products to get started!</p>
           <Link href="/products" className="btn-primary">
             Continue Shopping
@@ -61,7 +61,7 @@ export default function CartPage() {
     <div className="container-custom py-12">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Shopping Cart</h1>
+          <h1 className="text-4xl font-bold text-gray-300 mb-2">Shopping Cart</h1>
           <p className="text-gray-600">{itemCount} items in your cart</p>
         </div>
         <button onClick={handleClearCart} className="text-red-600 hover:text-red-700">
@@ -89,7 +89,7 @@ export default function CartPage() {
               </div>
 
               <div className="flex-grow">
-                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-300">{item.name}</h3>
                 <p className="text-gray-600 text-sm mb-2">{item.category}</p>
                 <p className="text-primary-600 font-semibold text-lg">
                   ${item.price.toFixed(2)}
@@ -121,7 +121,7 @@ export default function CartPage() {
                   </button>
                 </div>
 
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-lg font-bold text-gray-300">
                   ${(item.price * item.quantity).toFixed(2)}
                 </p>
               </div>
@@ -132,7 +132,7 @@ export default function CartPage() {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="card sticky top-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
+            <h2 className="text-2xl font-bold text-gray-300 mb-6">Order Summary</h2>
 
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-600">
@@ -148,7 +148,7 @@ export default function CartPage() {
                 <span>${(total * 0.1).toFixed(2)}</span>
               </div>
               <div className="border-t pt-3">
-                <div className="flex justify-between text-xl font-bold text-gray-900">
+                <div className="flex justify-between text-xl font-bold text-gray-300">
                   <span>Total</span>
                   <span>${(total * 1.1).toFixed(2)}</span>
                 </div>

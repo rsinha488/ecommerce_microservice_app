@@ -21,7 +21,7 @@ export default function OrdersPage() {
       <div className="container-custom py-12">
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-bold text-gray-300 mb-4">
             Please Sign In
           </h1>
           <p className="text-gray-600 mb-8">
@@ -59,14 +59,14 @@ export default function OrdersPage() {
   return (
     <div className="container-custom py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">My Orders</h1>
+        <h1 className="text-4xl font-bold text-gray-300 mb-2">My Orders</h1>
         <p className="text-gray-600">View and track your orders</p>
       </div>
 
       {orders.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">📦</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-gray-300 mb-4">
             No Orders Yet
           </h2>
           <p className="text-gray-600 mb-8">
@@ -82,7 +82,7 @@ export default function OrdersPage() {
             <div key={order._id} className="card">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-300">
                     Order #{order._id.slice(-8)}
                   </h3>
                   <p className="text-sm text-gray-600">
@@ -107,14 +107,14 @@ export default function OrdersPage() {
               </div>
 
               <div className="border-t pt-4">
-                <h4 className="font-semibold text-gray-900 mb-2">Items:</h4>
+                <h4 className="font-semibold text-gray-300 mb-2">Items:</h4>
                 <ul className="space-y-2">
                   {order.items.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
                       <span className="text-gray-700">
                         {item.productName} x {item.quantity}
                       </span>
-                      <span className="text-gray-900 font-semibold">
+                      <span className="text-gray-300 font-semibold">
                         ${(item.price * item.quantity).toFixed(2)}
                       </span>
                     </li>
@@ -125,7 +125,7 @@ export default function OrdersPage() {
               <div className="border-t mt-4 pt-4 flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-600">Total Amount</p>
-                  <p className="text-xl font-bold text-gray-900">
+                  <p className="text-xl font-bold text-gray-300">
                     ${order.total.toFixed(2)}
                   </p>
                 </div>

@@ -179,13 +179,12 @@ export default function LoginPage() {
       name: '',
     });
   };
-  console.log('Rendering LoginPage, isLogin:', isLogin, 'loading:', loading, 'error:', error);
-
+  
   return (
     <div className="container-custom py-12">
       <div className="max-w-md mx-auto">
         <div className="card">
-          <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">
+          <h1 className="text-3xl font-bold text-center text-gray-300 mb-6">
             {isLogin ? 'Sign In' : 'Create Account'}
           </h1>
 
@@ -340,7 +339,7 @@ export default function LoginPage() {
 
         {/* Back to Home Link */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+          <Link href="/" className="text-gray-600 hover:text-gray-300 transition-colors">
             ← Back to Home
           </Link>
         </div>

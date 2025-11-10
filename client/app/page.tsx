@@ -22,7 +22,7 @@ export default async function HomePage() {
     <div className="container-custom py-12">
       {/* Hero Section */}
       <section className="mb-16 text-center animate-fade-in">
-        <h1 className="text-5xl font-bold mb-4 text-gray-900">
+        <h1 className="text-5xl font-bold mb-4 text-gray-300">
           Welcome to Our E-commerce Platform
         </h1>
         <p className="text-xl text-gray-600 mb-8">
@@ -66,7 +66,7 @@ export default async function HomePage() {
       {/* Featured Products Section */}
       <section>
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
+          <h2 className="text-3xl font-bold text-gray-300">Featured Products</h2>
           <Link href="/products" className="text-primary-600 hover:text-primary-700 font-semibold">
             View All →
           </Link>
@@ -93,7 +93,7 @@ export default async function HomePage() {
 
       {/* SSR Benefits Section */}
       <section className="mt-16 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900">
+        <h2 className="text-2xl font-bold mb-4 text-gray-300">
           Built with Server-Side Rendering (SSR)
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

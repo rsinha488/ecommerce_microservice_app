@@ -98,7 +98,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <span className="text-2xl" role="img" aria-label="Shopping cart">🛍️</span>
-            <span className="text-xl font-bold text-gray-900">E-Shop</span>
+            <span className="text-xl font-bold text-gray-400">E-Shop</span>
           </Link>
 
           {/* Desktop Navigation Links */}
