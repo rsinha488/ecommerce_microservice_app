@@ -39,12 +39,14 @@ export class RegisterUseCase {
   async execute(data: {
     email: string;
     password: string;
+    name: string;
     firstName?: string;
     lastName?: string;
     profile?: Record<string, any>;
   }): Promise<{
     id: string;
     email: string;
+    name: string;
     profile: Record<string, any>;
   }> {
     // Input validation
@@ -122,6 +124,7 @@ export class RegisterUseCase {
     // Create user in repository
     const user = await this.authRepo.createUser({
       email: normalizedEmail,
+      name: data.name,
       passwordHash,
       roles: ['user'], // Default role for new users
       profile,
@@ -131,6 +134,7 @@ export class RegisterUseCase {
     return {
       id: user._id.toString(),
       email: user.email,
+      name: user.name,
       profile: {
         ...user.profile,
         // Exclude any sensitive profile information if needed

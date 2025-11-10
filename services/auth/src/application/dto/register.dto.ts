@@ -60,7 +60,7 @@ export class RegisterDto {
    *
    * @example "John Doe"
    */
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'User display name for personalization',
     example: 'John Doe',
     minLength: 1,
@@ -69,8 +69,18 @@ export class RegisterDto {
   @IsString({ message: 'Name must be a string' })
   @IsOptional()
   @MaxLength(100, { message: 'Name cannot exceed 100 characters' })
-  name?: string;
+  name: string;
 
+
+  @ApiPropertyOptional({
+    description: 'Additional user profile information',
+    example: { avatar: 'https://example.com/avatar.jpg', bio: 'Software developer' },
+    type: 'object',
+    additionalProperties: true,
+  })
+  @IsObject({ message: 'Profile must be an object' })
+  @IsOptional()
+  firstname?: string;
   /**
    * Additional user profile information.
    * Optional flexible object for storing extended user data like preferences,

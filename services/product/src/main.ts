@@ -93,20 +93,21 @@ async function bootstrap() {
      *  - Publish "product_created" events
      *  - Publish "product_updated" events
      *  - Publish "stock_adjust" events
-     * 
+     *
      * Inventory service will consume these events
      * and update inventory automatically.
      * -------------------------------------------------------------
      */
+    const kafkaBrokers = process.env.KAFKA_BROKERS || process.env.KAFKA_BROKER || 'localhost:9092';
     app.connectMicroservice<MicroserviceOptions>({
       transport: Transport.KAFKA,
       options: {
         client: {
-          clientId: 'product-service',
-          brokers: ['localhost:9092'], // load from .env later
+          clientId: process.env.KAFKA_CLIENT_ID || 'product-service',
+          brokers: kafkaBrokers.split(','),
         },
         consumer: {
-          groupId: 'product-consumer-group',
+          groupId: process.env.KAFKA_GROUP_ID || 'product-consumer-group',
         },
       },
     });

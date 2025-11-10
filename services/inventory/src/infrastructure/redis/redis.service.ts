@@ -1,35 +1,67 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
-export class RedisService implements OnModuleInit, OnModuleDestroy {
+export class RedisService implements OnModuleDestroy {
   private client: Redis;
-  private logger = new Logger(RedisService.name);
+  private readonly logger = new Logger(RedisService.name);
 
-  onModuleInit(): void {
-    const host = process.env.REDIS_HOST || '127.0.0.1';
-    const port = Number(process.env.REDIS_PORT || 6379);
-    const url = process.env.REDIS_URL || undefined;
+  constructor() {
+    // Support both REDIS_URL and separate REDIS_HOST/PORT/PASSWORD configuration
+    if (process.env.REDIS_URL) {
+      this.logger.log(`Connecting to Redis using REDIS_URL: ${process.env.REDIS_URL}`);
+      this.client = new Redis(process.env.REDIS_URL);
+    } else {
+      const redisConfig = {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        password: process.env.REDIS_PASSWORD || undefined,
+        db: parseInt(process.env.REDIS_DB || '0', 10),
+        retryStrategy: (times: number) => {
+          const delay = Math.min(times * 50, 2000);
+          return delay;
+        },
+        maxRetriesPerRequest: 3,
+        enableReadyCheck: true,
+        lazyConnect: false,
+      };
 
-    this.client = url ? new Redis(url) : new Redis({ host, port });
+      this.logger.log(`Connecting to Redis at ${redisConfig.host}:${redisConfig.port} (DB: ${redisConfig.db})`);
+      this.client = new Redis(redisConfig);
+    }
 
-    this.client.on('connect', () => this.logger.log('✅ Redis connected'));
-    this.client.on('error', (err) => this.logger.error('❌ Redis error', err));
+    this.client.on('connect', () => {
+      this.logger.log('✅ Redis connected successfully');
+    });
+
+    this.client.on('ready', () => {
+      this.logger.log('✅ Redis is ready to accept commands');
+    });
+
+    this.client.on('error', (err) => {
+      this.logger.error(`❌ Redis connection error: ${err.message}`);
+    });
+
+    this.client.on('close', () => {
+      this.logger.warn('⚠️  Redis connection closed');
+    });
+
+    this.client.on('reconnecting', () => {
+      this.logger.log('🔄 Reconnecting to Redis...');
+    });
   }
 
   getClient(): Redis {
-    if (!this.client) throw new Error('Redis client not initialized');
     return this.client;
   }
 
   async quit(): Promise<void> {
     if (this.client) {
       await this.client.quit();
-      this.logger.log('🛑 Redis disconnected');
     }
   }
 
-  onModuleDestroy(): void {
-    this.quit().catch((err) => this.logger.error('Error closing Redis', err));
+  async onModuleDestroy() {
+    await this.quit();
   }
 }

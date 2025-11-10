@@ -254,6 +254,7 @@ export class AuthController {
         maxAge: 3600000, // 1 hour expiration
         path: '/', // Available across entire domain
       });
+      console.log('++++++++++++++++++++++++++++++++>', JSON.stringify(result, null, 2));
 
       return {
         success: true,
