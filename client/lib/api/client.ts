@@ -1,14 +1,16 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-// API base URLs from environment variables
+// API base URLs from environment variables - using gateway for all services
+const GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:3008';
+
 const API_URLS = {
-  auth: process.env.API_AUTH_URL || 'http://localhost:4000',
-  user: process.env.API_USER_URL || 'http://localhost:3001',
-  // product: process.env.NEXT_PUBLIC_PRODUCT_API || "http://localhost:3002",
-  product: process.env.API_PRODUCT_URL || 'http://localhost:3002',
-  inventory: process.env.API_INVENTORY_URL || 'http://localhost:3003',
-  order: process.env.API_ORDER_URL || 'http://localhost:5003',
+  auth: GATEWAY_URL,
+  user: GATEWAY_URL,
+  product: GATEWAY_URL,
+  inventory: GATEWAY_URL,
+  order: GATEWAY_URL,
 };
+
 
 // Create axios instances for each service
 const createApiClient = (baseURL: string): AxiosInstance => {
@@ -27,7 +29,7 @@ const createApiClient = (baseURL: string): AxiosInstance => {
       if (error.response?.status === 401) {
         // Handle unauthorized access - redirect to login
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          // window.location.href = '/login';
         }
       }
       return Promise.reject(error);

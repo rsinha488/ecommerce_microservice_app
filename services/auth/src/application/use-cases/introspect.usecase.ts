@@ -1,5 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { jwtVerify } from 'jose';
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwksService } from '../../infrastructure/jwks/jwks.service';
 import { AUTH_REPOSITORY } from '../../domain/tokens/auth-repository.token';
 import type { AuthRepositoryInterface } from '../../domain/interfaces/auth-repository.interface';
@@ -7,30 +6,57 @@ import crypto from 'crypto';
 
 @Injectable()
 export class IntrospectUseCase {
+  private readonly issuer = process.env.JWT_ISS || 'http://localhost:4000';
+
   constructor(
-    private readonly jwks: JwksService,
+    private readonly jwksService: JwksService,
     @Inject(AUTH_REPOSITORY)
     private readonly authRepo: AuthRepositoryInterface,
   ) {}
 
+  /**
+   * Introspect a token (JWT or Refresh Token)
+   */
   async execute(token: string, tokenTypeHint?: string) {
-    // If hint says it's a refresh token, check in database
+    if (!token) {
+      throw new UnauthorizedException('Token missing');
+    }
+
+    // ✅ Refresh token shortcut when hint is provided
     if (tokenTypeHint === 'refresh_token') {
       return this.introspectRefreshToken(token);
     }
 
-    // Try to verify as JWT (access token)
+    // ✅ Try Access Token (JWT)
+    const accessTokenResult = await this.verifyJwtAccessToken(token);
+    if (accessTokenResult.active) return accessTokenResult;
+
+    // ✅ Fallback — maybe it's refresh token
+    if (!tokenTypeHint) {
+      return this.introspectRefreshToken(token);
+    }
+
+    return { active: false };
+  }
+
+  /**
+   * ✅ Validate JWT Access Token
+   */
+  private async verifyJwtAccessToken(token: string) {
     try {
-      const publicJwks = this.jwks.getPublicJwks();
-      const publicKey = publicJwks.keys[0];
-      
-      const { payload } = await jwtVerify(
-        token,
-        await this.importPublicKey(publicKey),
-        {
-          issuer: process.env.JWT_ISS || 'http://localhost:4000',
-        },
-      );
+      // ✅ Lazy import ("NO" top-level await)
+      const { jwtVerify } = await import('jose');
+
+      const jwks = this.jwksService.getPublicJwks();
+      if (!jwks?.keys?.length) {
+        return { active: false };
+      }
+
+      const publicKey = await this.importPublicKey(jwks.keys[0]);
+
+      const { payload } = await jwtVerify(token, publicKey, {
+        issuer: this.issuer,
+      });
 
       return {
         active: true,
@@ -42,48 +68,46 @@ export class IntrospectUseCase {
         token_type: 'Bearer',
         scope: payload.scope || 'openid profile email',
       };
-    } catch (error) {
-      // If JWT verification fails, check if it's a refresh token
-      if (!tokenTypeHint) {
-        const refreshResult = await this.introspectRefreshToken(token);
-        if (refreshResult.active) {
-          return refreshResult;
-        }
-      }
-
+    } catch {
       return { active: false };
     }
   }
 
+  /**
+   * ✅ Validate Refresh Token
+   */
   private async introspectRefreshToken(token: string) {
     try {
       const hash = crypto.createHash('sha256').update(token).digest('hex');
-      const refreshToken = await this.authRepo.findRefreshToken(hash);
+      const stored = await this.authRepo.findRefreshToken(hash);
 
-      if (!refreshToken || refreshToken.revoked) {
+      if (!stored || stored.revoked) {
         return { active: false };
       }
 
-      // Check if token is expired
-      if (new Date(refreshToken.expiresAt) < new Date()) {
+      // expiration check
+      const now = new Date();
+      if (new Date(stored.expiresAt) < now) {
         return { active: false };
       }
 
       return {
         active: true,
-        sub: refreshToken.userId,
-        client_id: refreshToken.clientId,
+        sub: stored.userId,
+        client_id: stored.clientId,
         token_type: 'refresh_token',
-        exp: Math.floor(new Date(refreshToken.expiresAt).getTime() / 1000),
+        exp: Math.floor(new Date(stored.expiresAt).getTime() / 1000),
       };
-    } catch (error) {
+    } catch {
       return { active: false };
     }
   }
 
+  /**
+   * ✅ Convert JWK → CryptoKey
+   */
   private async importPublicKey(jwk: any) {
     const { importJWK } = await import('jose');
     return importJWK(jwk, 'RS256');
   }
 }
-

@@ -18,7 +18,7 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute(dto: CreateOrderDto) {
-    const order = this.factory.createFrom({
+    const order = await this.factory.createFrom({
       buyerId: dto.buyerId,
       items: dto.items,
       currency: dto.currency,

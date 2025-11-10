@@ -139,6 +139,7 @@ ecom_microservice-master/
 
 ## 📊 Monitoring
 
+- **API Gateway Swagger Documentation**: http://localhost:3008/api
 - **Kafka UI**: http://localhost:8080
 - **Service logs**: `docker-compose logs -f [service-name]`
 - **Health checks**: Individual service endpoints

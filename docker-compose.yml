@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   # -----------------------------------------------------
   # Infrastructure Services
@@ -43,7 +45,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo 'ruok' | nc localhost 2181"]
+      test: ["CMD", "bash", "-c", "echo 'ruok' | nc -w 3 localhost 2181 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,19 +57,27 @@ services:
     container_name: ecom-kafka
     restart: always
     ports:
-      - "9092:9092"
+      - "9092:9092"   # host-accessible (optional)
+      - "29092:29092" # internal-accessible mapping (we use 29092 internally)
     depends_on:
       zookeeper:
         condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      # Listeners: allow internal container-to-container on 29092 and host access on 9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+
+      # Advertise internal name to containers, and localhost to host apps
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms256M"
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      test: ["CMD", "bash", "-c", "kafka-broker-api-versions --bootstrap-server kafka:29092 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -131,7 +141,7 @@ services:
       - MONGO_URI=mongodb://mongo:27017/product-service
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - KAFKA_BROKER=kafka:29092
+      - KAFKA_BROKERS=kafka:29092
     depends_on:
       mongo:
         condition: service_healthy
@@ -199,7 +209,7 @@ services:
     container_name: ecom-user-service
     restart: always
     ports:
-      - "3001:3001"
+      - "3001:3001"    # fixed mapping
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -217,24 +227,22 @@ services:
     networks:
       - ecom-net
 
-  # -----------------------------------------------------
-  # Next.js Client Application
-  # -----------------------------------------------------
-  client:
+  gateway:
     build:
-      context: ./client
-      dockerfile: Dockerfile.yml
-    container_name: ecom-client
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    container_name: ecom-gateway
     restart: always
     ports:
-      - "3000:3000"
+      - "3008:3008"
     environment:
-      - NODE_ENV=production
-      - API_AUTH_URL=http://auth-service:4000
-      - API_USER_URL=http://user-service:3001
-      - API_PRODUCT_URL=http://product-service:3002
-      - API_INVENTORY_URL=http://inventory-service:3003
-      - API_ORDER_URL=http://order-service:5003
+      - NODE_ENV=development
+      - GATEWAY_PORT=3008
+      - AUTH_SERVICE_URL=http://localhost:4000
+      - USER_SERVICE_URL=http://user-service:3001
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+      - INVENTORY_SERVICE_URL=http://inventory-service:3003
+      - ORDER_SERVICE_URL=http://order-service:5003
     depends_on:
       auth-service:
         condition: service_started
@@ -246,6 +254,33 @@ services:
         condition: service_started
       order-service:
         condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${GATEWAY_PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ecom-net
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.yml
+    container_name: ecom-client
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - API_AUTH_URL=http://gateway:3008/auth
+      - API_USER_URL=http://gateway:3008/user
+      - API_PRODUCT_URL=http://gateway:3008/product
+      - API_INVENTORY_URL=http://gateway:3008/inventory
+      - API_ORDER_URL=http://gateway:3008/order
+    depends_on:
+      gateway:
+        condition: service_healthy
     networks:
       - ecom-net
 

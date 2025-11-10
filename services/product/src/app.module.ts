@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProductModule } from './application/product.module';
 import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './presentation/health/health.controller';
-
+console.log('Connecting to MongoDB at:', process.env.MONGO_URI);
 @Module({
   imports: [
     // ✅ Global config (environment variables + schema validation)
@@ -20,7 +20,7 @@ import { HealthController } from './presentation/health/health.controller';
     }),
 
     // ✅ Database connection at service-root level (DDD rule)
-    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/products_db'),
+    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/products-service'),
 
     // ✅ Product bounded-context module
     ProductModule,

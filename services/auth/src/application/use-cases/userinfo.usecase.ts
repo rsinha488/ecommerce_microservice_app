@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { JwksService } from '../../infrastructure/jwks/jwks.service';
-import { jwtVerify } from 'jose';
 import { AUTH_REPOSITORY } from '../../domain/tokens/auth-repository.token';
 import type { AuthRepositoryInterface } from '../../domain/interfaces/auth-repository.interface';
 
@@ -17,8 +16,9 @@ export class UserInfoUseCase {
       // Verify the access token
       const publicJwks = this.jwks.getPublicJwks();
       const publicKey = publicJwks.keys[0];
-      
-      const { payload } = await jwtVerify(accessToken, await this.importPublicKey(publicKey), {
+
+      const { jwtVerify, importJWK } = await import('jose');
+      const { payload } = await jwtVerify(accessToken, await importJWK(publicKey, 'RS256'), {
         issuer: process.env.JWT_ISS || 'http://localhost:4000',
       });
 
@@ -28,7 +28,7 @@ export class UserInfoUseCase {
 
       // Get user info from database
       const user = await this.authRepo.findUserById(payload.sub as string);
-      
+
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
@@ -78,10 +78,6 @@ export class UserInfoUseCase {
     }
   }
 
-  // Helper method to import public key
-  private async importPublicKey(jwk: any) {
-    const { importJWK } = await import('jose');
-    return importJWK(jwk, 'RS256');
-  }
+
 }
 

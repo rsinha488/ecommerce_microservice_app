@@ -1,26 +1,8 @@
-# Production-Ready Fixes for E-commerce Microservices
+# TODO List for API Gateway Port Fix and Docker Cleanup
 
-## Issues to Fix
-- [ ] ESLint anonymous default export warnings → Refactor to named exports
-- [ ] TypeScript API response inconsistency → Update types and RTK slice
-- [ ] Docker port conflicts → Fix port allocations
-- [ ] Missing healthchecks → Add healthchecks and proper dependencies
-
-## Files to Edit
-
-### Client Side
-- [ ] `client/app/login/page.tsx` - Refactor to named export
-- [ ] `client/app/page.tsx` - Refactor to named export
-- [ ] `client/app/products/page.tsx` - Refactor to named export
-- [ ] `client/components/ProductsClient.tsx` - Refactor to named export
-- [ ] `client/lib/redux/slices/productSlice.ts` - Update API response handling
-- [ ] `client/lib/api/product.ts` - Update response types
-
-### Docker/Infrastructure
-- [ ] `docker-compose.yml` - Fix port conflicts, add healthchecks
-- [ ] `services/inventory/docker-compose.yml` - Fix port conflicts, add healthchecks
-
-## Testing
-- [ ] Test API responses after changes
-- [ ] Verify Docker services start without conflicts
-- [ ] Run ESLint to confirm no warnings
+## Tasks
+- [x] Edit `services/gateway/src/main.ts` to remove production server reference to port 3000, keeping only development on 3008.
+- [x] Edit `docker-compose.yml` to update client API URLs from `http://gateway:3000` to `http://gateway:3008`.
+- [x] Edit `start.sh` to add Docker stop and clean commands before building and starting services.
+- [x] Verify no port 3000 references in gateway code.
+- [x] Test the updated start script to ensure proper stop, clean, build, and start sequence.

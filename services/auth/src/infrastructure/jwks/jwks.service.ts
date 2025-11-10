@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { generateKeyPairSync } from 'crypto';
-import { exportJWK, importJWK, SignJWT } from 'jose';
 import fs from 'fs';
 import path from 'path';
 
@@ -23,13 +22,17 @@ export class JwksService {
       const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
       // export JWKS via jose
       // we store the private JWK
-      (async () => {
-        this.privateJwk = await exportJWK(privateKey);
-        this.privateJwk.kid = `k-${Date.now()}`;
-        fs.writeFileSync(keyFile, JSON.stringify(this.privateJwk, null, 2));
-      })();
+      this.generateAndSaveKey(privateKey);
     }
     this.kid = this.privateJwk?.kid;
+  }
+
+  private async generateAndSaveKey(privateKey: any) {
+    const { exportJWK } = await import('jose');
+    this.privateJwk = await exportJWK(privateKey);
+    this.privateJwk.kid = `k-${Date.now()}`;
+    const keyFile = path.join(KEY_DIR, 'private.json');
+    fs.writeFileSync(keyFile, JSON.stringify(this.privateJwk, null, 2));
   }
 
   getPublicJwks() {
@@ -39,6 +42,7 @@ export class JwksService {
   }
 
   async signJwt(payload: Record<string, any>, expiresIn = '15m') {
+    const { importJWK, SignJWT } = await import('jose');
     const alg = 'RS256';
     const pk = await importJWK(this.privateJwk, alg);
     return new SignJWT(payload)

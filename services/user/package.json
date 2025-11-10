@@ -5,6 +5,7 @@
     "scripts": {
         "start": "node dist/main.js",
         "start:dev": "pnpm exec nest start --watch",
+        "start:prod": "node dist/main.js",
         "build": "pnpm exec nest build",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
