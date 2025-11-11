@@ -167,7 +167,7 @@ export class ProductController {
    * -------------------------------------------------------------
    */
   @Get(':id')
-   @ApiParam({
+  @ApiParam({
     name: 'id',
     type: String,
     example: '67891f2c4edb2cf15c271239',
@@ -225,6 +225,54 @@ export class ProductController {
   async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     try {
       const updated = await this.updateProduct.execute(id, dto);  // ✅ FIX
+
+      return {
+        success: true,
+        message: 'Product updated successfully',
+        data: updated,
+      };
+    } catch (error: any) {
+      throw new HttpException(
+        {
+          success: false,
+          code: 'PRODUCT_UPDATE_ERROR',
+          message: error.message || 'Failed to update product',
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+
+
+  /**
+   * -------------------------------------------------------------
+   * ✅ Update a product by SKU
+   * -------------------------------------------------------------
+   */
+  @Put('sku/:sku')
+  @ApiOperation({ summary: 'Update a product by sku' })
+  @ApiParam({
+    name: 'sku',
+    type: String,
+    example: 'SKU-12345',
+  })
+  @ApiBody({
+    type: UpdateProductDto,
+    examples: {
+      default: {
+        summary: 'Example update payload',
+        value: {
+          name: 'Updated Headphones',
+          price: 4999,
+          stock: 90,
+        },
+      },
+    },
+  })
+  async updateSku(@Param('sku') sku: string, @Body() dto: UpdateProductDto) {
+    try {
+      const updated = await this.updateProduct.execute(sku, dto);  // ✅ FIX
 
       return {
         success: true,

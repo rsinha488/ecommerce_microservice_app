@@ -463,7 +463,7 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
                   {formData.images.map((imageUrl, index) => (
                     <div key={index} className="relative group">
                       <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                        <Image
+                        {/* <Image
                           src={imageUrl}
                           alt={`Product ${index + 1}`}
                           className="w-full h-full object-cover"
@@ -471,7 +471,8 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
                             const target = e.target as HTMLImageElement;
                             target.src = 'https://via.placeholder.com/200?text=Invalid+URL';
                           }}
-                        />
+                        /> */}
+                        <img src={imageUrl ||'#'} alt={`Product ${index + 1}`}  className='object-cover'/>
                       </div>
                       <button
                         type="button"

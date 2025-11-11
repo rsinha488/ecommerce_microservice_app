@@ -72,48 +72,44 @@ export default function AdminHeader() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
+          {isAuthenticated ? <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/admin"
-              className={`font-medium transition-colors px-3 py-2 rounded ${
-                isActiveLink('/admin') && pathname === '/admin'
+              className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin') && pathname === '/admin'
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+                }`}
             >
               Products
             </Link>
             <Link
               href="/admin/orders"
-              className={`font-medium transition-colors px-3 py-2 rounded ${
-                isActiveLink('/admin/orders')
+              className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/orders')
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+                }`}
             >
               Orders
             </Link>
             <Link
               href="/admin/inventory"
-              className={`font-medium transition-colors px-3 py-2 rounded ${
-                isActiveLink('/admin/inventory')
+              className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/inventory')
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+                }`}
             >
               Inventory
             </Link>
             <Link
               href="/admin/users"
-              className={`font-medium transition-colors px-3 py-2 rounded ${
-                isActiveLink('/admin/users')
+              className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/users')
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-              }`}
+                }`}
             >
               Users
             </Link>
-          </div>
+          </div> : ""}
 
           {/* Right Side - User Info & Logout */}
           <div className="flex items-center space-x-4">

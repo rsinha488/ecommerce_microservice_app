@@ -119,7 +119,7 @@ export default function AdminDashboard() {
     try {
       if (editingProduct) {
         // Update existing product
-        await productApi.updateProduct(editingProduct._id, productData);
+        await productApi.updateProduct(editingProduct.sku, productData);
         toast.success('Product updated successfully!', {
           position: 'top-right',
           autoClose: 3000,

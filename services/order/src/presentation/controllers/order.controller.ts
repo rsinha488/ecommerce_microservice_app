@@ -9,7 +9,7 @@ import { CreateOrderDto } from '../../application/dto/create-order.dto';
 import { FilterOrderDto } from '../../application/dto/filter-order.dto';
 
 @ApiTags('orders')
-@Controller('orders')
+@Controller('order/orders')
 export class OrderController {
   constructor(
     private readonly createOrder: CreateOrderUseCase,

@@ -25,7 +25,7 @@ export class UpdateProductUseCase {
   async execute(id: string, dto: UpdateProductDto) {
     try {
       // ✅ Step 1 — Ensure product exists
-      const existing = await this.repository.findById(id);
+      const existing = await this.repository.findBySku(id);
       await this.domainService.ensureProductExists(existing, id);
 
       // ✅ Step 2 — Update product

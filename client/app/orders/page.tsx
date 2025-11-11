@@ -70,7 +70,7 @@ export default function OrdersPage() {
             <p className="text-gray-600">View and track your orders</p>
           </div>
           {/* WebSocket Connection Status Indicator */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <div
               className={`w-3 h-3 rounded-full ${
                 websocket.connected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
@@ -80,7 +80,7 @@ export default function OrdersPage() {
             <span className="text-sm text-gray-600">
               {websocket.connected ? 'Live' : 'Offline'}
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
 

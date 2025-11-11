@@ -8,17 +8,17 @@ export interface CreateOrderRequest {
 
 export const orderApi = {
   getOrders: async (): Promise<Order[]> => {
-    const response = await orderClient.get('/orders');
+    const response = await orderClient.get('/order/orders');
     return response.data;
   },
 
   getOrderById: async (id: string): Promise<Order> => {
-    const response = await orderClient.get(`/orders/${id}`);
+    const response = await orderClient.get(`/order/orders/${id}`);
     return response.data;
   },
 
   createOrder: async (orderData: CreateOrderRequest): Promise<Order> => {
-    const response = await orderClient.post('/orders', orderData);
+    const response = await orderClient.post('/order/orders', orderData);
     return response.data;
   },
 
@@ -26,12 +26,12 @@ export const orderApi = {
     id: string,
     status: Order['status']
   ): Promise<Order> => {
-    const response = await orderClient.patch(`/orders/${id}/status`, { status });
+    const response = await orderClient.patch(`/order/orders/${id}/status`, { status });
     return response.data;
   },
 
   cancelOrder: async (id: string): Promise<Order> => {
-    const response = await orderClient.post(`/orders/${id}/cancel`);
+    const response = await orderClient.post(`/order/orders/${id}/cancel`);
     return response.data;
   },
 };

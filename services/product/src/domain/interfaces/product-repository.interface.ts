@@ -8,6 +8,7 @@ export interface ProductRepositoryInterface {
   create(product: Product): Promise<Product>;
   update(id: string, product: Partial<Product>): Promise<Product | null>;
   findById(id: string): Promise<Product | null>;
+  findBySku(sku: string): Promise<Product | null>;
   findAll(filters: any): Promise<Product[]>;
   count(filters: any): Promise<number>;
 }

@@ -58,7 +58,7 @@ export const createOrder = createAsyncThunk(
   }
 );
 
-export const fetchOrders = createAsyncThunk('order/fetchOrders', async (_, { rejectWithValue }) => {
+export const fetchOrders = createAsyncThunk('order/orders', async (_, { rejectWithValue }) => {
   try {
     const response = await orderApi.getOrders();
     return response;
@@ -68,7 +68,7 @@ export const fetchOrders = createAsyncThunk('order/fetchOrders', async (_, { rej
 });
 
 export const fetchOrderById = createAsyncThunk(
-  'order/fetchOrderById',
+  'order/orders/',
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await orderApi.getOrderById(id);

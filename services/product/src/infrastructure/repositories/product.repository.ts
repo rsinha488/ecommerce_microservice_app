@@ -71,6 +71,21 @@ export class ProductRepository implements ProductRepositoryInterface {
   }
 
   /**
+   * ✅ Find product by SKU
+   */
+  async findBySku(sku: string): Promise<Product | null> {
+    try {
+      const found = await this.productModel.findOne({ sku }).lean();
+      return ProductMapper.toDomain(found);
+    } catch (error: any) {
+      this.logger.error(`❌ Failed to fetch product (SKU=${sku})`, error.message);
+      throw new InternalServerErrorException({
+        message: 'PRODUCT_FETCH_FAILED',
+        details: error.message,
+      });
+    }
+  }
+  /**
    * ✅ List Products with Filtering and Pagination (Domain-ready)
    * Ensures return type is Product[]
    */

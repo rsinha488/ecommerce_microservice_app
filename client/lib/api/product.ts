@@ -42,8 +42,8 @@ export const productApi = {
     return response.data;
   },
 
-  updateProduct: async (id: string, productData: Partial<Product>): Promise<Product> => {
-    const response = await productClient.put(`/product/products/${id}`, productData);
+  updateProduct: async (sku: string, productData: Partial<Product>): Promise<Product> => {
+    const response = await productClient.put(`/product/products/sku/${sku}`, productData);
     return response.data;
   },
 
