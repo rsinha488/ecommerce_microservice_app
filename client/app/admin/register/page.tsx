@@ -104,7 +104,7 @@ export default function AdminRegisterPage() {
     } else if (!emailRegex.test(formData.email)) {
       errors.email = 'Please enter a valid email address';
     } else if (!formData.email.toLowerCase().includes('admin')) {
-      errors.email = 'Admin email required (must contain &quot;admin&quot;)';
+      errors.email = 'Admin email required (must contain "admin")';
     }
 
     // Password validation
@@ -264,7 +264,7 @@ export default function AdminRegisterPage() {
                 <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
               )}
               <p className="mt-1 text-xs text-gray-500">
-                Email must contain &quot;admin&quot; to register as administrator
+                Email must contain &apos;admin&apos; to register as administrator
               </p>
             </div>
 
@@ -392,7 +392,7 @@ export default function AdminRegisterPage() {
               <div>
                 <p className="text-xs text-blue-800 font-semibold mb-1">Admin Registration Requirements</p>
                 <ul className="text-xs text-blue-700 space-y-1">
-                  <li>• Email must contain &quot;admin&quot; keyword</li>
+                  <li>• Email must contain &apos; admin &apos; keyword</li>
                   <li>• Password minimum 6 characters</li>
                   <li>• Strong password recommended for security</li>
                 </ul>

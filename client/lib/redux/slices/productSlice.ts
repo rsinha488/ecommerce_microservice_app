@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { productApi } from '@/lib/api/product';
 
 export interface Product {
-  _id: string;
+  id: string;
   name: string;
   sku: string;
   description: string;
@@ -102,14 +102,14 @@ const productSlice = createSlice({
       const { productId, stock, updatedAt } = action.payload;
 
       // Update in products list
-      const productIndex = state.products.findIndex(product => product._id === productId);
+      const productIndex = state.products.findIndex(product => product.id === productId);
       if (productIndex !== -1) {
         state.products[productIndex].stock = stock;
         state.products[productIndex].updatedAt = updatedAt;
       }
 
       // Update selected product if it matches
-      if (state.selectedProduct?._id === productId) {
+      if (state.selectedProduct?.id === productId) {
         state.selectedProduct.stock = stock;
         state.selectedProduct.updatedAt = updatedAt;
       }

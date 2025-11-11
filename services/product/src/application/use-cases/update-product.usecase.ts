@@ -22,17 +22,17 @@ export class UpdateProductUseCase {
     private readonly producer: ProductProducer,
   ) {}
 
-  async execute(id: string, dto: UpdateProductDto) {
+  async execute(sku: string, dto: UpdateProductDto) {
     try {
       // ✅ Step 1 — Ensure product exists
-      const existing = await this.repository.findBySku(id);
-      await this.domainService.ensureProductExists(existing, id);
+      const existing = await this.repository.findBySku(sku);
+      await this.domainService.ensureProductExists(existing, sku);
 
       // ✅ Step 2 — Update product
-      const updated = await this.repository.update(id, dto);
+      const updated = await this.repository.update(sku, dto);
 
       if (!updated) {
-        throw new NotFoundException(`❌ Product with id ${id} not found for update`);
+        throw new NotFoundException(`❌ Product with sku ${sku} not found for update`);
       }
 
       // ✅ Step 3 — Convert DB document → Domain entity
@@ -57,7 +57,7 @@ export class UpdateProductUseCase {
       // ✅ Step 6 — Response
       return this.mapper.toResponse(productEntity);
     } catch (error) {
-      console.error(`❌ Error updating product ${id}:`, error);
+      console.error(`❌ Error updating product ${sku}:`, error);
       throw error;
     }
   }

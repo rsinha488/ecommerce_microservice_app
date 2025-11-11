@@ -1,25 +1,60 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { fetchOrders } from '@/lib/redux/slices/orderSlice';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { orderApi } from '@/lib/api/order';
+import { Order } from '@/lib/redux/slices/orderSlice';
+import { toast } from 'react-toastify';
 import Link from 'next/link';
 
 export default function OrdersPage() {
   const dispatch = useAppDispatch();
   const { orders, loading, error } = useAppSelector((state) => state.order);
-  const { isAuthenticated, websocket } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [cancelling, setCancelling] = useState<string | null>(null);
 
   // Initialize WebSocket connection for real-time order updates
   useWebSocket();
+
+  // Filter orders for current user
+  const userOrders = orders.filter(order => order.userId === user?.id);
 
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchOrders());
     }
   }, [dispatch, isAuthenticated]);
+
+  /**
+   * Handle order cancellation
+   */
+  const handleCancelOrder = async (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const confirmCancel = window.confirm(
+      'Are you sure you want to cancel this order?\n\nThis action cannot be undone.'
+    );
+
+    if (!confirmCancel) return;
+
+    try {
+      setCancelling(orderId);
+      await orderApi.cancelOrder(orderId);
+      toast.success('Order cancelled successfully');
+
+      // Refresh orders
+      dispatch(fetchOrders());
+    } catch (err: any) {
+      console.error('Error cancelling order:', err);
+      toast.error(err.message || 'Failed to cancel order');
+    } finally {
+      setCancelling(null);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -84,7 +119,7 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {orders.length === 0 ? (
+      {userOrders.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">📦</div>
           <h2 className="text-2xl font-bold text-gray-300 mb-4">
@@ -99,18 +134,24 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
-            <div key={order._id} className="card">
+          {userOrders.map((order) => (
+            <div
+              key={order._id}
+              className="card hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => setSelectedOrder(selectedOrder?._id === order._id ? null : order)}
+            >
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-300">
-                    Order #{order._id.slice(-8)}
+                    Order #{order._id.slice(-8).toUpperCase()}
                   </h3>
                   <p className="text-sm text-gray-600">
                     {new Date(order.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })}
                   </p>
                 </div>
@@ -120,7 +161,11 @@ export default function OrdersPage() {
                       ? 'bg-green-100 text-green-800'
                       : order.status === 'cancelled'
                       ? 'bg-red-100 text-red-800'
-                      : 'bg-blue-100 text-blue-800'
+                      : order.status === 'shipped'
+                      ? 'bg-purple-100 text-purple-800'
+                      : order.status === 'processing'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-yellow-100 text-yellow-800'
                   }`}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -130,18 +175,38 @@ export default function OrdersPage() {
               <div className="border-t pt-4">
                 <h4 className="font-semibold text-gray-300 mb-2">Items:</h4>
                 <ul className="space-y-2">
-                  {order.items.map((item, index) => (
-                    <li key={index} className="flex justify-between text-sm">
-                      <span className="text-gray-700">
-                        {item.productName} x {item.quantity}
-                      </span>
-                      <span className="text-gray-300 font-semibold">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </span>
-                    </li>
-                  ))}
+                  {order.items && Array.isArray(order.items) && order.items.length > 0 ? (
+                    order.items.map((item, index) => (
+                      <li key={index} className="flex justify-between text-sm">
+                        <span className="text-gray-700">
+                          {item?.name || 'Unknown Item'} x {item?.quantity || 0}
+                        </span>
+                        <span className="text-gray-300 font-semibold">
+                          ${((item?.unitPrice || 0) * (item?.quantity || 0)).toFixed(2)}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-sm text-gray-500">No items</li>
+                  )}
                 </ul>
               </div>
+
+              {/* Expanded Details */}
+              {selectedOrder?._id === order._id && order.shippingAddress && (
+                <div className="mt-6 pt-6 border-t">
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-900 mb-4">Shipping Address</h4>
+                    <div className="bg-gray-50 p-4 rounded">
+                      <p className="text-gray-900">{order.shippingAddress.street}</p>
+                      <p className="text-gray-600">
+                        {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                      </p>
+                      <p className="text-gray-600">{order.shippingAddress.country}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="border-t mt-4 pt-4 flex justify-between items-center">
                 <div>
@@ -150,12 +215,24 @@ export default function OrdersPage() {
                     ${order.total.toFixed(2)}
                   </p>
                 </div>
-                <Link
-                  href={`/orders/${order._id}`}
-                  className="btn-outline"
-                >
-                  View Details
-                </Link>
+                <div className="flex gap-2">
+                  {order.status === 'pending' && (
+                    <button
+                      onClick={(e) => handleCancelOrder(order._id, e)}
+                      disabled={cancelling === order._id}
+                      className="btn-secondary disabled:opacity-50"
+                    >
+                      {cancelling === order._id ? 'Cancelling...' : 'Cancel Order'}
+                    </button>
+                  )}
+                  <Link
+                    href={`/orders/${order._id}`}
+                    className="btn-outline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

@@ -1,4 +1,4 @@
-import { IsString, IsArray, ValidateNested, IsNumber } from 'class-validator';
+import { IsString, IsArray, ValidateNested, IsNumber, IsOptional, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -20,6 +20,28 @@ class CreateOrderItemDto {
   quantity: number;
 }
 
+class ShippingAddressDto {
+  @ApiProperty({ example: '123 Main St', description: 'Street address' })
+  @IsString()
+  street: string;
+
+  @ApiProperty({ example: 'New York', description: 'City' })
+  @IsString()
+  city: string;
+
+  @ApiProperty({ example: 'NY', description: 'State' })
+  @IsString()
+  state: string;
+
+  @ApiProperty({ example: '10001', description: 'Zip code' })
+  @IsString()
+  zipCode: string;
+
+  @ApiProperty({ example: 'USA', description: 'Country' })
+  @IsString()
+  country: string;
+}
+
 export class CreateOrderDto {
   @ApiProperty({ example: 'user-123', description: 'ID of the buyer' })
   @IsString()
@@ -35,10 +57,22 @@ export class CreateOrderDto {
   items: CreateOrderItemDto[];
 
   @ApiProperty({
+    type: ShippingAddressDto,
+    description: 'Shipping address for the order',
+    required: false,
+  })
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ShippingAddressDto)
+  shippingAddress?: ShippingAddressDto;
+
+  @ApiProperty({
     example: 'USD',
     description: 'Currency code of the order',
     required: false,
   })
   @IsString()
+  @IsOptional()
   currency?: string;
 }

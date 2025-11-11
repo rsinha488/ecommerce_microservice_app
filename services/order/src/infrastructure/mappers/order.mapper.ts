@@ -12,6 +12,7 @@ export class OrderMapper {
       raw.total,
       raw.currency,
       raw.status,
+      raw.shippingAddress,
       raw.createdAt,
       raw.updatedAt,
     );
@@ -25,6 +26,7 @@ export class OrderMapper {
       total: order.total,
       currency: order.currency,
       status: order.status,
+      shippingAddress: order.shippingAddress,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };
@@ -38,6 +40,7 @@ export class OrderMapper {
       total: order.total,
       currency: order.currency,
       status: order.status,
+      shippingAddress: order.shippingAddress,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };

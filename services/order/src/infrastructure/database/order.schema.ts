@@ -22,6 +22,15 @@ export class OrderModel {
 
   @Prop({ default: 'pending' })
   status!: string;
+
+  @Prop({ type: Object, required: false })
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
 }
 
 export const OrderSchema = SchemaFactory.createForClass(OrderModel);

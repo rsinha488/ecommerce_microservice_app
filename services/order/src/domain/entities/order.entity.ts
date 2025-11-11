@@ -9,6 +9,14 @@ export class OrderItem {
   ) {}
 }
 
+export interface ShippingAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
 export class Order {
   constructor(
     public readonly id: string,
@@ -17,6 +25,7 @@ export class Order {
     public total: number,
     public currency: string,
     public status: OrderStatus,
+    public shippingAddress?: ShippingAddress,
     public createdAt?: Date,
     public updatedAt?: Date,
   ) {}

@@ -76,8 +76,8 @@ export default function AdminHeader() {
             <Link
               href="/admin"
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin') && pathname === '/admin'
-                  ? 'bg-gray-700 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-gray-700 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
             >
               Products
@@ -85,26 +85,26 @@ export default function AdminHeader() {
             <Link
               href="/admin/orders"
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/orders')
-                  ? 'bg-gray-700 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-gray-700 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
             >
               Orders
             </Link>
             <Link
-              href="/admin/inventory"
+              href={isAuthenticated ? "/admin/inventory" : ""}
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/inventory')
-                  ? 'bg-gray-700 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-gray-700 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
             >
               Inventory
             </Link>
             <Link
-              href="/admin/users"
+              href={isAuthenticated ? "/admin/users" : "#"}
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/users')
-                  ? 'bg-gray-700 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-gray-700 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
             >
               Users
@@ -145,7 +145,7 @@ export default function AdminHeader() {
               </div>
             ) : (
               // Not authenticated
-              <Link
+              !isAuthenticated && <Link
                 href="/admin/login"
                 className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded transition-colors text-sm font-medium focus:ring-2 focus:ring-primary-300"
               >

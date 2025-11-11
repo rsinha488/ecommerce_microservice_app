@@ -73,7 +73,7 @@ export default function CartPage() {
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <div key={item._id} className="card flex gap-4">
+            <div key={item.id} className="card flex gap-4">
               <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
                 {item.images && item.images[0] ? (
                   <img
@@ -97,7 +97,7 @@ export default function CartPage() {
 
               <div className="flex flex-col items-end justify-between">
                 <button
-                  onClick={() => handleRemoveItem(item._id)}
+                  onClick={() => handleRemoveItem(item.id)}
                   className="text-red-600 hover:text-red-700 text-sm"
                 >
                   Remove
@@ -105,7 +105,7 @@ export default function CartPage() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
+                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                     className="w-8 h-8 rounded-lg text-gray-600 border border-gray-300 hover:bg-gray-100"
                     disabled={item.quantity <= 1}
                   >
@@ -113,7 +113,7 @@ export default function CartPage() {
                   </button>
                   <span className="w-12 text-gray-600 text-center font-semibold">{item.quantity}</span>
                   <button
-                    onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
+                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                     className="w-8 h-8 rounded-lg text-gray-600 border border-gray-300 hover:bg-gray-100"
                   >
                     +
@@ -143,7 +143,7 @@ export default function CartPage() {
                 <span>Free</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Tax</span>
+                <span>Tax (10%)</span>
                 <span>${(total * 0.1).toFixed(2)}</span>
               </div>
               <div className="border-t pt-3">

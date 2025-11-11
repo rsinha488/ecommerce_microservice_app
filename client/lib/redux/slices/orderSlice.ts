@@ -2,10 +2,10 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { orderApi } from '@/lib/api/order';
 
 export interface OrderItem {
-  productId: string;
-  productName: string;
+  sku: string;
+  name: string;
   quantity: number;
-  price: number;
+  unitPrice: number;
 }
 
 export interface Order {
@@ -44,8 +44,10 @@ export const createOrder = createAsyncThunk(
   'order/createOrder',
   async (
     orderData: {
+      buyerId: string;
       items: OrderItem[];
-      shippingAddress: Order['shippingAddress'];
+      shippingAddress?: Order['shippingAddress'];
+      currency?: string;
     },
     { rejectWithValue }
   ) => {

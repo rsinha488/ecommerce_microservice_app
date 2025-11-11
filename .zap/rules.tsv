@@ -1,0 +1,100 @@
+# ZAP Scanning Rules Configuration
+# Format: <rule_id>	<threshold>	[<strength>]
+
+# Ignore false positives
+10015	OFF	# Re-examine Cache-control Directives
+10027	OFF	# Information Disclosure - Suspicious Comments
+10054	OFF	# Cookie Without SameSite Attribute
+10096	OFF	# Timestamp Disclosure
+10109	OFF	# Modern Web Application
+
+# Set to INFO level
+10021	INFO	# X-Content-Type-Options Header Missing
+10049	INFO	# Content Cacheability
+10055	INFO	# CSP Scanner
+10063	INFO	# Permissions Policy Header Not Set
+
+# Keep default level for security issues
+0	PASS	# Directory Browsing
+10011	PASS	# Cookie Without Secure Flag
+10017	PASS	# Cross-Domain JavaScript Source File Inclusion
+10020	PASS	# X-Frame-Options Header Not Set
+10023	PASS	# Information Disclosure - Debug Error Messages
+10024	PASS	# Information Disclosure - Sensitive Information in URL
+10025	PASS	# Information Disclosure - Sensitive Information in HTTP Referrer Header
+10026	PASS	# HTTP Parameter Override
+10028	PASS	# Open Redirect
+10029	PASS	# Cookie Poisoning
+10030	PASS	# User Controllable Charset
+10031	PASS	# User Controllable HTML Element Attribute (Potential XSS)
+10032	PASS	# Viewstate Scanner
+10033	PASS	# Directory Browsing
+10034	PASS	# Heartbleed OpenSSL Vulnerability
+10035	PASS	# Strict-Transport-Security Header Not Set
+10036	PASS	# HTTP Server Response Header
+10037	PASS	# Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s)
+10038	PASS	# Content Security Policy (CSP) Header Not Set
+10039	PASS	# X-Backend-Server Header Information Leak
+10040	PASS	# Secure Pages Include Mixed Content
+10041	PASS	# HTTP to HTTPS Insecure Transition in Form Post
+10042	PASS	# HTTPS to HTTP Insecure Transition in Form Post
+10043	PASS	# User Controllable JavaScript Event (XSS)
+10044	PASS	# Big Redirect Detected (Potential Sensitive Information Leak)
+10045	PASS	# Source Code Disclosure - /WEB-INF folder
+10047	PASS	# HTTPS Content Available via HTTP
+10050	PASS	# Retrieved from Cache
+10051	PASS	# Relative Path Overwrite
+10052	PASS	# X-ChromeLogger-Data (XCOLD) Header Information Leak
+10053	PASS	# Apache Range Header DoS (CVE-2011-3192)
+10056	PASS	# X-Debug-Token Information Leak
+10057	PASS	# Username Hash Found
+10058	PASS	# GET for POST
+10061	PASS	# X-AspNet-Version Response Header Scanner
+10062	PASS	# PII Disclosure
+10070	PASS	# LOGJAM (CVE-2015-4000)
+10071	PASS	# FREAK (CVE-2015-0204)
+10094	PASS	# Base64 Disclosure
+10095	PASS	# Backup File Disclosure
+10097	PASS	# Hash Disclosure
+10098	PASS	# Cross-Domain Misconfiguration
+10099	PASS	# Source Code Disclosure
+10103	PASS	# Insufficient Site Isolation Against Spectre Vulnerability
+10104	PASS	# User Agent Fuzzer
+10105	PASS	# Weak Authentication Method
+10107	PASS	# Httpoxy - Proxy Header Misuse
+10108	PASS	# Reverse Tabnabbing
+2	PASS	# Private IP Disclosure
+3	PASS	# Session ID in URL Rewrite
+40003	PASS	# CRLF Injection
+40008	PASS	# Parameter Tampering
+40009	PASS	# Server Side Include
+40012	PASS	# Cross Site Scripting (Reflected)
+40013	PASS	# Session Fixation
+40014	PASS	# Cross Site Scripting (Persistent)
+40016	PASS	# Cross Site Scripting (Persistent) - Prime
+40017	PASS	# Cross Site Scripting (Persistent) - Spider
+40018	PASS	# SQL Injection
+40019	PASS	# SQL Injection - MySQL
+40020	PASS	# SQL Injection - Hypersonic SQL
+40021	PASS	# SQL Injection - Oracle
+40022	PASS	# SQL Injection - PostgreSQL
+40023	PASS	# Possible Username Enumeration
+40024	PASS	# SQL Injection - SQLite
+40025	PASS	# Proxy Disclosure
+40026	PASS	# Cross Site Scripting (DOM Based)
+40027	PASS	# SQL Injection - MsSQL
+40028	PASS	# ELMAH Information Leak
+40029	PASS	# Trace.axd Information Leak
+50000	PASS	# Script Active Scan Rules
+90001	PASS	# Insecure JSF ViewState
+90011	PASS	# Character Set Mismatch
+90020	PASS	# Remote Code Execution - Shell Shock
+90022	PASS	# Application Error Disclosure
+90023	PASS	# XML External Entity Attack
+90024	PASS	# Generic Padding Oracle
+90025	PASS	# Expression Language Injection
+90026	PASS	# SOAP Action Spoofing
+90028	PASS	# Insecure HTTP Method
+90029	PASS	# SOAP XML Injection
+90030	PASS	# WSDL File Detection
+90033	PASS	# Loosely Scoped Cookie

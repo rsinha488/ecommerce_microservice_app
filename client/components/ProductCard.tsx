@@ -21,7 +21,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-
+    console.log('Add to Cart clicked for product:', product.id, JSON.stringify(product));
     if (isAuthenticated) {
       dispatch(addToCart(product));
       setAdded(true);
@@ -33,7 +33,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/products/${product._id}`} className="group">
+    <Link href={`/products/${product.id}`} className="group">
       <div className="card h-full flex flex-col transition-transform group-hover:scale-105">
 
         <div className="relative w-full h-48 bg-gray-200 rounded-lg mb-4 overflow-hidden">

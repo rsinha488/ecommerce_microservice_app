@@ -16,6 +16,7 @@ import { OrderFactory } from './domain/factories/order.factory';
 import { CreateOrderUseCase } from './application/use-cases/create-order.usecase';
 import { GetOrderUseCase } from './application/use-cases/get-order.usecase';
 import { ListOrdersUseCase } from './application/use-cases/list-orders.usecase';
+import { UpdateOrderStatusUseCase } from './application/use-cases/update-order-status.usecase';
 import { ORDER_REPOSITORY } from './domain/interfaces/order-repository.interface';
 
 @Module({
@@ -57,12 +58,14 @@ import { ORDER_REPOSITORY } from './domain/interfaces/order-repository.interface
     CreateOrderUseCase,
     GetOrderUseCase,
     ListOrdersUseCase,
+    UpdateOrderStatusUseCase,
   ],
 
   exports: [
     CreateOrderUseCase,
     GetOrderUseCase,
     ListOrdersUseCase,
+    UpdateOrderStatusUseCase,
   ],
 })
 export class AppModule { }

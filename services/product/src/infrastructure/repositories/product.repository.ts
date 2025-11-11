@@ -36,20 +36,32 @@ export class ProductRepository implements ProductRepositoryInterface {
   }
 
   /**
-   * ✅ Update Product by ID
+   * ✅ Update Product by SKU
+   * @param sku - Product SKU (not MongoDB ObjectId)
+   * @param product - Partial product data to update
    */
-  async update(id: string, product: Partial<Product>): Promise<Product | null> {
+  async update(sku: string, product: Partial<Product>): Promise<Product | null> {
     try {
       const updated = await this.productModel
-        .findByIdAndUpdate(id, product, { new: true })
+        .findOneAndUpdate({ sku }, product, { new: true })
         .lean();
 
+      if (!updated) {
+        this.logger.warn(`⚠️ Product not found for update (SKU=${sku})`);
+        return null;
+      }
+
+      this.logger.log(`✅ Successfully updated product (SKU=${sku})`);
       return ProductMapper.toDomain(updated);
     } catch (error: any) {
-      this.logger.error(`❌ Failed to update product (ID=${id})`, error.message);
+      this.logger.error(`❌ Failed to update product (SKU=${sku})`, {
+        error: error.message,
+        stack: error.stack,
+      });
       throw new InternalServerErrorException({
         message: 'PRODUCT_UPDATE_FAILED',
-        details: error.message,
+        details: `Unable to update product with SKU ${sku}: ${error.message}`,
+        sku,
       });
     }
   }

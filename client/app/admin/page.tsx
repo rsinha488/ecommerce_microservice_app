@@ -162,7 +162,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await productApi.deleteProduct(product._id);
+      await productApi.deleteProduct(product.id);
       toast.success('Product deleted successfully!', {
         position: 'top-right',
         autoClose: 3000,

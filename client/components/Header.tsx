@@ -140,7 +140,7 @@ export default function Header() {
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
-            <Link href="/cart" className="relative group">
+            <Link href={isAuthenticated?"/cart":"/login"} className="relative group">
               <button
                 className="p-2 text-gray-700 hover:text-primary-600 transition-colors rounded-full hover:bg-gray-100"
                 aria-label={`Shopping cart with ${itemCount} items`}

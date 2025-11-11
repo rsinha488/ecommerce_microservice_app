@@ -276,7 +276,7 @@ export class AuthController {
         httpOnly: true, // Prevents JavaScript access for security
         secure: process.env.NODE_ENV === 'production', // HTTPS only in production
         sameSite: 'lax', // CSRF protection while allowing normal navigation
-        maxAge: 3600000, // 1 hour expiration
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours expiration (instead of 1 hour)
         path: '/', // Available across entire domain
       });
       console.log('++++++++++++++++++++++++++++++++>', JSON.stringify(result, null, 2));

@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Patch } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
 
 import { CreateOrderUseCase } from '../../application/use-cases/create-order.usecase';
 import { GetOrderUseCase } from '../../application/use-cases/get-order.usecase';
 import { ListOrdersUseCase } from '../../application/use-cases/list-orders.usecase';
+import { UpdateOrderStatusUseCase } from '../../application/use-cases/update-order-status.usecase';
 
 import { CreateOrderDto } from '../../application/dto/create-order.dto';
 import { FilterOrderDto } from '../../application/dto/filter-order.dto';
@@ -15,6 +16,7 @@ export class OrderController {
     private readonly createOrder: CreateOrderUseCase,
     private readonly getOrder: GetOrderUseCase,
     private readonly listOrders: ListOrdersUseCase,
+    private readonly updateOrderStatus: UpdateOrderStatusUseCase,
   ) {}
 
   // -----------------------------
@@ -64,5 +66,36 @@ export class OrderController {
   })
   async list(@Query() q: FilterOrderDto) {
     return this.listOrders.execute(q);
+  }
+
+  // -----------------------------
+  //  Update Order Status
+  // -----------------------------
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Update order status (Admin)' })
+  @ApiParam({ name: 'id', example: 'order-123' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['pending', 'paid', 'cancelled', 'shipped', 'delivered'],
+          example: 'shipped',
+        },
+      },
+      required: ['status'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Order status updated successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: string,
+  ) {
+    return this.updateOrderStatus.execute(id, status);
   }
 }
