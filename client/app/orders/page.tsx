@@ -3,12 +3,17 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { fetchOrders } from '@/lib/redux/slices/orderSlice';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import Link from 'next/link';
 
 export default function OrdersPage() {
   const dispatch = useAppDispatch();
   const { orders, loading, error } = useAppSelector((state) => state.order);
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, websocket } = useAppSelector((state) => state.auth);
+
+
+  // Initialize WebSocket connection for real-time order updates
+  useWebSocket();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -59,8 +64,24 @@ export default function OrdersPage() {
   return (
     <div className="container-custom py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-300 mb-2">My Orders</h1>
-        <p className="text-gray-600">View and track your orders</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-300 mb-2">My Orders</h1>
+            <p className="text-gray-600">View and track your orders</p>
+          </div>
+          {/* WebSocket Connection Status Indicator */}
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-3 h-3 rounded-full ${
+                websocket.connected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+              }`}
+              title={websocket.connected ? 'Connected to real-time updates' : 'Disconnected'}
+            />
+            <span className="text-sm text-gray-600">
+              {websocket.connected ? 'Live' : 'Offline'}
+            </span>
+          </div>
+        </div>
       </div>
 
       {orders.length === 0 ? (

@@ -95,6 +95,25 @@ const productSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    /**
+     * Update product stock from WebSocket event
+     */
+    updateProductStock: (state, action: PayloadAction<{ productId: string; stock: number; updatedAt: string }>) => {
+      const { productId, stock, updatedAt } = action.payload;
+
+      // Update in products list
+      const productIndex = state.products.findIndex(product => product._id === productId);
+      if (productIndex !== -1) {
+        state.products[productIndex].stock = stock;
+        state.products[productIndex].updatedAt = updatedAt;
+      }
+
+      // Update selected product if it matches
+      if (state.selectedProduct?._id === productId) {
+        state.selectedProduct.stock = stock;
+        state.selectedProduct.updatedAt = updatedAt;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -144,6 +163,6 @@ const productSlice = createSlice({
   },
 });
 
-export const { clearSelectedProduct, clearError } = productSlice.actions;
+export const { clearSelectedProduct, clearError, updateProductStock } = productSlice.actions;
 export const productReducer = productSlice.reducer;
 

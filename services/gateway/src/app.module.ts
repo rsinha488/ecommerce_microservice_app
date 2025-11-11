@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ProxyModule } from './proxy/proxy.module';
 import { HealthModule } from './health/health.module';
+import { RedisModule } from './redis/redis.module';
+import { CacheInterceptor } from './cache/cache.interceptor';
 
 @Module({
   imports: [
@@ -17,12 +20,20 @@ import { HealthModule } from './health/health.module';
         limit: 10, // 10 requests per minute
       },
     ]),
+    // Redis for caching
+    RedisModule,
     // Proxy module for routing requests
     ProxyModule,
     // Health checks
     HealthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    // Global cache interceptor
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}

@@ -76,20 +76,19 @@ export default function CartPage() {
             <div key={item._id} className="card flex gap-4">
               <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
                 {item.images && item.images[0] ? (
-                  <Image
-                    src={item.images[0]}
+                  <img
+                    src={item.images[0] || "https://via.placeholder.com/200?text=No+Image"}
                     alt={item.name}
-                    width={96}
-                    height={96}
-                    className="rounded-lg object-cover"
+                    className="object-cover bg-white"
                   />
+
                 ) : (
                   <span className="text-4xl">📦</span>
                 )}
               </div>
 
               <div className="flex-grow">
-                <h3 className="text-lg font-semibold text-gray-300">{item.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
                 <p className="text-gray-600 text-sm mb-2">{item.category}</p>
                 <p className="text-primary-600 font-semibold text-lg">
                   ${item.price.toFixed(2)}
@@ -107,21 +106,21 @@ export default function CartPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
-                    className="w-8 h-8 rounded-lg border border-gray-300 hover:bg-gray-100"
+                    className="w-8 h-8 rounded-lg text-gray-600 border border-gray-300 hover:bg-gray-100"
                     disabled={item.quantity <= 1}
                   >
                     -
                   </button>
-                  <span className="w-12 text-center font-semibold">{item.quantity}</span>
+                  <span className="w-12 text-gray-600 text-center font-semibold">{item.quantity}</span>
                   <button
                     onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
-                    className="w-8 h-8 rounded-lg border border-gray-300 hover:bg-gray-100"
+                    className="w-8 h-8 rounded-lg text-gray-600 border border-gray-300 hover:bg-gray-100"
                   >
                     +
                   </button>
                 </div>
 
-                <p className="text-lg font-bold text-gray-300">
+                <p className="text-lg font-bold text-gray-900">
                   ${(item.price * item.quantity).toFixed(2)}
                 </p>
               </div>
@@ -132,7 +131,7 @@ export default function CartPage() {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="card sticky top-4">
-            <h2 className="text-2xl font-bold text-gray-300 mb-6">Order Summary</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-600">
@@ -148,7 +147,7 @@ export default function CartPage() {
                 <span>${(total * 0.1).toFixed(2)}</span>
               </div>
               <div className="border-t pt-3">
-                <div className="flex justify-between text-xl font-bold text-gray-300">
+                <div className="flex justify-between text-xl font-bold text-gray-900">
                   <span>Total</span>
                   <span>${(total * 1.1).toFixed(2)}</span>
                 </div>

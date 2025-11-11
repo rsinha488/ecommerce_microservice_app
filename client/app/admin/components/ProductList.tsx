@@ -96,7 +96,7 @@ export default function ProductList({ products, onEdit, onDelete, loading }: Pro
       </div>
     );
   }
-
+  console.log(products.length > 0 ? products[0].images[0] : "No Products available");
   return (
     <>
       {/* Desktop Table View */}
@@ -133,19 +133,18 @@ export default function ProductList({ products, onEdit, onDelete, loading }: Pro
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-12 w-12">
-                      <Image
-                        className="h-12 w-12 rounded-lg object-cover"
-                        src={product.images[0] || '/placeholder.png'}
+                      <img
+                        src={product.images[0] || "https://via.placeholder.com/200?text=No+Image"}
                         alt={product.name}
-                        width={48}
-                        height={48}
+                        className="h-12 w-12 rounded-lg object-contain bg-white"
                       />
                     </div>
+                   
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">
                         {product.name}
                       </div>
-                      <div className="text-sm text-gray-500 line-clamp-1">
+                      <div className="text-sm text-gray-500 line-clamp-1 text-wrap">
                         {product.description}
                       </div>
                     </div>

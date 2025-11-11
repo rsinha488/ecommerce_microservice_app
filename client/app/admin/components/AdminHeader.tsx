@@ -65,9 +65,10 @@ export default function AdminHeader() {
       <nav className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/admin" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <span className="text-2xl" role="img" aria-label="Admin dashboard">⚙️</span>
+          <Link href="/admin/register" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <span className="text-2xl" role="img" aria-label="Shopping cart">🛍️</span>
             <span className="text-xl font-bold">Admin Dashboard</span>
+            <span className="text-xl" role="img" aria-label="Admin dashboard" >⚙️</span>
           </Link>
 
           {/* Desktop Navigation Links */}

@@ -1,6 +1,0 @@
-{
-	"dependencies": {
-		"@nestjs/microservices": "^11.1.8",
-		"kafkajs": "^2.2.4"
-	}
-}

@@ -28,12 +28,12 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Product Image */}
         <div className="relative w-full h-48 bg-gray-200 rounded-lg mb-4 overflow-hidden">
           {product.images && product.images[0] ? (
-            <Image
-              src={product.images[0]}
+            <img
+              src={product.images[0] || "https://via.placeholder.com/200?text=No+Image"}
               alt={product.name}
-              fill
-              className="object-cover"
+              className=" object-contain bg-white"
             />
+
           ) : (
             <div className="w-full h-full flex items-center justify-center text-6xl">
               📦
@@ -75,13 +75,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-              added
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${added
                 ? 'bg-green-500 text-white'
                 : product.stock === 0
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-primary-600 text-white hover:bg-primary-700'
-            }`}
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-primary-600 text-white hover:bg-primary-700'
+              }`}
           >
             {added ? '✓ Added' : product.stock === 0 ? 'Unavailable' : 'Add to Cart'}
           </button>

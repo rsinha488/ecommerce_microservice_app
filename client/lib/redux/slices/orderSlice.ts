@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { orderApi } from '@/lib/api/order';
 
 export interface OrderItem {
@@ -89,6 +89,31 @@ const orderSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    /**
+     * Update order status from WebSocket event
+     */
+    updateOrderStatus: (state, action: PayloadAction<{ orderId: string; status: string; updatedAt: string }>) => {
+      const { orderId, status, updatedAt } = action.payload;
+
+      // Update in orders list
+      const orderIndex = state.orders.findIndex(order => order._id === orderId);
+      if (orderIndex !== -1) {
+        state.orders[orderIndex].status = status as Order['status'];
+        state.orders[orderIndex].updatedAt = updatedAt;
+      }
+
+      // Update selected order if it matches
+      if (state.selectedOrder?._id === orderId) {
+        state.selectedOrder.status = status as Order['status'];
+        state.selectedOrder.updatedAt = updatedAt;
+      }
+    },
+    /**
+     * Add new order from WebSocket event (admin)
+     */
+    addOrder: (state, action: PayloadAction<Order>) => {
+      state.orders.unshift(action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -134,6 +159,6 @@ const orderSlice = createSlice({
   },
 });
 
-export const { clearSelectedOrder, clearError } = orderSlice.actions;
+export const { clearSelectedOrder, clearError, updateOrderStatus, addOrder } = orderSlice.actions;
 export default orderSlice.reducer;
 

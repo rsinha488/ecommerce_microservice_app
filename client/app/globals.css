@@ -87,7 +87,7 @@ body {
 
 /* Ensure all input and textarea elements are visible */
 input, textarea, select {
-  @apply text-gray-900;
+  @apply text-gray-300;
 }
 
 input::placeholder, textarea::placeholder {

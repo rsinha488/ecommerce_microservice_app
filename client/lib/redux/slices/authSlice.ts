@@ -12,6 +12,15 @@ export interface User {
 }
 
 /**
+ * WebSocket connection status interface
+ */
+export interface WebSocketStatus {
+  connected: boolean;
+  socketId?: string;
+  error?: string;
+}
+
+/**
  * Authentication state interface
  */
 interface AuthState {
@@ -19,6 +28,7 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  websocket: WebSocketStatus;
 }
 
 /**
@@ -29,6 +39,11 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  websocket: {
+    connected: false,
+    socketId: undefined,
+    error: undefined,
+  },
 };
 
 /**
@@ -135,6 +150,21 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
+      state.websocket = {
+        connected: false,
+        socketId: undefined,
+        error: undefined,
+      };
+    },
+
+    /**
+     * Set WebSocket connection status
+     */
+    setWebSocketStatus: (state, action: PayloadAction<Partial<WebSocketStatus>>) => {
+      state.websocket = {
+        ...state.websocket,
+        ...action.payload,
+      };
     },
   },
   extraReducers: (builder) => {
@@ -181,6 +211,11 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
+        state.websocket = {
+          connected: false,
+          socketId: undefined,
+          error: undefined,
+        };
       })
       .addCase(logout.rejected, (state) => {
         // Even if logout API fails, clear client state
@@ -188,6 +223,11 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
+        state.websocket = {
+          connected: false,
+          socketId: undefined,
+          error: undefined,
+        };
       })
 
       // Check Auth cases
@@ -210,5 +250,5 @@ const authSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { setCredentials, clearError, resetAuth } = authSlice.actions;
+export const { setCredentials, clearError, resetAuth, setWebSocketStatus } = authSlice.actions;
 export default authSlice.reducer;

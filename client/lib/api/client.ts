@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 // API base URLs from environment variables - using gateway for all services
-const GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:3008';
+// NEXT_PUBLIC_ prefix is required for client-side access in Next.js
+const GATEWAY_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_GATEWAY_URL || 'http://localhost:3008';
 
 const API_URLS = {
   auth: GATEWAY_URL,

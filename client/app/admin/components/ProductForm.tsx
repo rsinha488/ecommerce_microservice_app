@@ -463,7 +463,7 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
                   {formData.images.map((imageUrl, index) => (
                     <div key={index} className="relative group">
                       <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                        <img
+                        <Image
                           src={imageUrl}
                           alt={`Product ${index + 1}`}
                           className="w-full h-full object-cover"
