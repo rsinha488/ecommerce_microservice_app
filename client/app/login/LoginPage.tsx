@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { login, register, clearError } from '@/lib/redux/slices/authSlice';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 
 /**
  * Login Page Component
@@ -42,11 +43,11 @@ export default function LoginPage() {
 
   // Redirect authenticated users
   useEffect(() => {
-    if (isAuthenticated ) {
+    if (isAuthenticated) {
       const redirectTo = searchParams.get('redirect') || '/products';
       router.replace(redirectTo);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router, searchParams]); // ✅ FIXED ESLINT WARNING
 
   /**
    * Handle input field changes with validation
@@ -136,7 +137,6 @@ export default function LoginPage() {
 
         if (result.session_id) {
           console.log('Login successful, redirecting...');
-          // Redirect to the return URL or products page
           const redirectTo = searchParams.get('redirect') || '/products';
           router.replace(redirectTo);
         }
@@ -148,8 +148,11 @@ export default function LoginPage() {
           name: formData.name.trim(),
         })).unwrap();
 
-        // Show success message and switch to login mode
-        alert('Registration successful! Please login with your credentials.');
+        // Registration successful
+        toast.success('🎉 Registration successful! Please login with your credentials.', {
+          position: 'top-right',
+          autoClose: 4000,
+        });
         setIsLogin(true);
 
         // Clear form
@@ -161,9 +164,6 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error('Authentication error:', err);
-
-      // Error is already handled by Redux slice
-      // Additional client-side error handling can be added here if needed
     }
   };
 
@@ -179,7 +179,7 @@ export default function LoginPage() {
       name: '',
     });
   };
-  
+
   return (
     <div className="container-custom py-12">
       <div className="max-w-md mx-auto">
@@ -285,7 +285,6 @@ export default function LoginPage() {
               className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               aria-describedby={loading ? "loading-status" : undefined}
             >
-
               {loading ? (
                 <span className="flex items-center justify-center" id="loading-status">
                   <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" aria-hidden="true">

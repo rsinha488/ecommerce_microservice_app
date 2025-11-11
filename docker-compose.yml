@@ -25,6 +25,8 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     command: ["redis-server", "--appendonly", "yes"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -243,6 +245,30 @@ services:
     networks:
       - ecom-net
 
+  realtime-service:
+    build:
+      context: ./services/realtime
+      dockerfile: Dockerfile
+    container_name: ecom-realtime-service
+    restart: always
+    ports:
+      - "3009:3009"
+    env_file:
+      - ./services/realtime/.env.production
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3009/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ecom-net
+
   client:
     build:
       context: ./client
@@ -258,6 +284,7 @@ services:
       - API_PRODUCT_URL=http://gateway:3008/product
       - API_INVENTORY_URL=http://gateway:3008/inventory
       - API_ORDER_URL=http://gateway:3008/order
+      - REALTIME_URL=http://realtime-service:3009
     depends_on:
       gateway:
         condition: service_healthy
@@ -270,3 +297,6 @@ networks:
 
 volumes:
   mongo_data:
+    driver: local
+  redis_data:
+    driver: local

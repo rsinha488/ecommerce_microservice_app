@@ -35,11 +35,21 @@ export class LoginUseCase {
    *
    * @param email - User's email address (must be valid format and non-empty)
    * @param password - User's password (must be non-empty)
-   * @returns Promise containing session ID and user ID
+   * @returns Promise containing session ID, user ID, and user profile data
    * @throws UnauthorizedException - When credentials are invalid or user not found
    * @throws BadRequestException - When input validation fails
    */
-  async execute(email: string, password: string): Promise<{ sessionId: string; userId: string }> {
+  async execute(email: string, password: string): Promise<{
+    sessionId: string;
+    userId: string;
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      profile?: any;
+      role?: string;
+    }
+  }> {
     // Input validation
     if (!email || typeof email !== 'string' || email.trim().length === 0) {
       throw new BadRequestException('Email is required and must be a non-empty string');
@@ -92,9 +102,19 @@ export class LoginUseCase {
       3600, // 1 hour expiration
     );
 
+    // Determine user role
+    const role = user.roles?.includes('admin') ? 'admin' : 'user';
+
     return {
       sessionId,
       userId: user._id.toString(),
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.profile?.name || user.email.split('@')[0],
+        profile: user.profile,
+        role: role,
+      },
     };
   }
 

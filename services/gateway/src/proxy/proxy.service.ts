@@ -32,7 +32,7 @@ export class ProxyService {
   async proxyRequest(service: string, req: Request, res: Response): Promise<void> {
     console.log(`Proxying request to service: ${service}`);
     const targetUrl = this.serviceUrls[service];
-
+console.log(`Target URL: ${targetUrl}`);
     if (!targetUrl) {
       res.status(500).json({ error: 'Service not configured' });
       return;

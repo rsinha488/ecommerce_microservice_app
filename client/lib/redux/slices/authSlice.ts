@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { authApi, ApiError } from '@/lib/api/auth';
+import { authApi, ApiError, LoginResponse } from '@/lib/api/auth';
 
 /**
  * User interface representing authenticated user data
@@ -34,10 +34,17 @@ const initialState: AuthState = {
 /**
  * Async thunk for user login
  * Handles authentication through API gateway with proper error handling
+ *
+ * The backend now returns full user data in the login response,
+ * so no additional session fetch is needed.
  */
-export const login = createAsyncThunk(
+export const login = createAsyncThunk<
+  LoginResponse,
+  { email: string; password: string },
+  { rejectValue: string }
+>(
   'auth/login',
-  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await authApi.login(credentials);
       return response;
@@ -141,8 +148,10 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.error = null;
-        // Note: User data is not stored in Redux state after login
-        // as it's handled by session cookies and checkAuth
+        // Store user data if available from session
+        if (action.payload.user) {
+          state.user = action.payload.user;
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -186,7 +195,7 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
-        // state.loading = false;
+        state.loading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.error = null;

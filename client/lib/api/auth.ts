@@ -20,10 +20,15 @@ export interface RegisterRequest {
   name: string;
 }
 
+/**
+ * Login response now includes full user data from backend
+ * No need to make additional session call
+ */
 export interface LoginResponse {
   session_id: string;
   user_id: string;
   success: boolean;
+  user: UserInfoResponse;
 }
 
 export interface RegisterResponse {

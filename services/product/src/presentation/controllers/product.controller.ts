@@ -29,7 +29,7 @@ import { FilterProductDto } from '../../application/dto/filter-product.dto';
 import { CreateProductDto } from '../../application/dto/create-product.dto';
 
 @ApiTags('Products')
-@Controller('products')
+@Controller('product/products')
 export class ProductController {
   constructor(
     private readonly createProduct: CreateProductUseCase,

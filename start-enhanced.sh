@@ -31,21 +31,24 @@ log_error() {
 }
 
 # ============================================
-# Step 1: Docker Cleanup
+# Step 1: Safe Docker Cleanup (Preserving Data)
 # ============================================
 log_info "Starting E-commerce Microservices Platform..."
 echo ""
 
-log_warning "Stopping all running containers..."
+log_warning "Stopping all running containers (preserving data volumes)..."
 docker-compose down 2>/dev/null || true
 
-log_warning "Removing stopped containers and orphaned volumes..."
-docker-compose down --volumes --remove-orphans 2>/dev/null || true
+# ⚠️ IMPORTANT: Removed --volumes flag to preserve database data
+# Only remove orphaned containers, keep volumes intact
+log_warning "Removing orphaned containers (keeping volumes for data persistence)..."
+docker-compose down --remove-orphans 2>/dev/null || true
 
-log_warning "Cleaning up Docker system (unused images, containers, networks)..."
+log_warning "Cleaning up Docker system (unused images, containers, networks only)..."
+# Only prune images and containers, NOT volumes
 docker system prune -f
 
-log_success "Docker cleanup completed"
+log_success "Docker cleanup completed (MongoDB and Redis data preserved)"
 echo ""
 
 # ============================================
@@ -63,14 +66,32 @@ log_success "Docker daemon is running"
 echo ""
 
 # ============================================
+# Step 2.5: Check Existing Volumes
+# ============================================
+log_info "Checking existing data volumes..."
+if docker volume ls | grep -q "mongo_data"; then
+    log_success "MongoDB volume exists - your database data will be preserved"
+else
+    log_warning "MongoDB volume not found - this appears to be a fresh install"
+fi
+
+if docker volume ls | grep -q "redis_data"; then
+    log_success "Redis volume exists - your session data will be preserved"
+else
+    log_warning "Redis volume not found - will be created on first start"
+fi
+echo ""
+
+# ============================================
 # Step 3: Build and Start Services
 # ============================================
 log_info "Building and starting all services..."
 echo ""
 
-# Build images with no cache for clean build
-log_info "Building Docker images (this may take a few minutes)..."
-docker-compose build --no-cache
+# Build images using cache for faster subsequent builds
+# Remove --no-cache flag to speed up builds significantly
+log_info "Building Docker images (using cache for faster builds)..."
+docker-compose build
 
 log_info "Starting infrastructure services (MongoDB, Redis, Kafka)..."
 docker-compose up -d mongo redis zookeeper kafka
@@ -92,6 +113,12 @@ log_info "Starting API Gateway..."
 docker-compose up -d gateway
 
 log_info "Waiting for gateway to be healthy..."
+sleep 10
+
+log_info "Starting Real-Time WebSocket service..."
+docker-compose up -d realtime-service
+
+log_info "Waiting for real-time service to be healthy..."
 sleep 10
 
 log_info "Starting client application..."
@@ -117,7 +144,7 @@ docker-compose ps
 
 echo ""
 log_info "Checking service logs for errors (last 10 lines each)..."
-for service in mongo redis kafka auth-service user-service product-service inventory-service order-service gateway client; do
+for service in mongo redis kafka auth-service user-service product-service inventory-service order-service realtime-service gateway client; do
     echo ""
     log_info "=== $service logs ==="
     docker-compose logs --tail=10 $service 2>&1 | tail -10 || log_warning "$service logs unavailable"
@@ -147,18 +174,33 @@ echo -e "    User:         http://localhost:3001"
 echo -e "    Product:      http://localhost:3002"
 echo -e "    Inventory:    http://localhost:3003"
 echo -e "    Order:        http://localhost:5003"
+echo -e "    Real-Time:    http://localhost:3009"
 echo ""
 echo -e "  ${GREEN}Gateway & Client:${NC}"
 echo -e "    API Gateway:  http://localhost:3008"
 echo -e "    Client (Web): http://localhost:3000"
 echo ""
+echo -e "  ${GREEN}Documentation & Monitoring:${NC}"
+echo -e "    Real-Time API Docs: http://localhost:3009/api/docs"
+echo -e "    WebSocket Server:   ws://localhost:3009"
+echo ""
 log_success "=========================================="
 echo ""
+log_info "Database data persistence:"
+echo -e "  ${GREEN}✓${NC} MongoDB data saved in: mongo_data volume"
+echo -e "  ${GREEN}✓${NC} Redis data saved in:   redis_data volume"
+echo -e "  ${YELLOW}⚠${NC}  Your data will persist across restarts"
+echo ""
+log_warning "To completely reset database (DELETE ALL DATA):"
+echo "  docker-compose down -v"
+echo ""
 log_info "Useful commands:"
-echo "  View logs:     docker-compose logs -f [service-name]"
-echo "  Stop all:      docker-compose down"
-echo "  Restart:       docker-compose restart [service-name]"
-echo "  Check status:  docker-compose ps"
+echo "  View logs:       docker-compose logs -f [service-name]"
+echo "  Stop (safe):     docker-compose down"
+echo "  Stop + delete:   docker-compose down -v  ${YELLOW}(⚠️ DELETES ALL DATA)${NC}"
+echo "  Restart service: docker-compose restart [service-name]"
+echo "  Check status:    docker-compose ps"
+echo "  Check volumes:   docker volume ls"
 echo ""
 
 # ============================================

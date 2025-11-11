@@ -82,6 +82,30 @@ export class LoginResponse extends AuthSuccessResponse {
     description: 'Unique identifier of the authenticated user'
   })
   user_id: string;
+
+  @ApiProperty({
+    type: 'object',
+    description: 'User profile information including name, email, and roles',
+    properties: {
+      id: { type: 'string', example: 'user-uuid-123' },
+      email: { type: 'string', example: 'john.doe@example.com' },
+      name: { type: 'string', example: 'John Doe' },
+      profile: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', example: 'John Doe' }
+        }
+      },
+      role: { type: 'string', example: 'user', description: 'User role (admin or user)' }
+    }
+  })
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    profile?: Record<string, any>;
+    role?: string;
+  };
 }
 
 export class RegisterResponse extends AuthSuccessResponse {
@@ -261,6 +285,7 @@ export class AuthController {
         success: true,
         session_id: result.sessionId,
         user_id: result.userId,
+        user: result.user,
       };
     } catch (error) {
       if (error instanceof UnauthorizedException) {
