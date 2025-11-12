@@ -27,7 +27,7 @@ export default function NotFound() {
         {/* Animated 404 Icon */}
         <div className="mb-8 animate-bounce">
           <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
-            404
+            Upcoming
           </div>
         </div>
 
@@ -35,14 +35,14 @@ export default function NotFound() {
         <div className="mb-8">
           <div className="text-6xl mb-4 animate-pulse">🛍️</div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Oops! Page Not Found
+            🚧 Page Under Development
           </h1>
           <p className="text-xl text-gray-600 mb-2">
-            The page you&apos;re looking for seems to have wandered off...
+            We&apos;re currently working hard to bring this page to life.
+            Please check back soon!
           </p>
-          <p className="text-lg text-gray-500">
-            Don&apos;t worry, let&apos;s get you back to shopping!
-          </p>
+          <div className="animate-pulse text-7xl mb-6">👨‍💻</div>
+
         </div>
 
         {/* Navigation Options */}

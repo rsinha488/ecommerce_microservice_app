@@ -3,6 +3,7 @@ import { OrderFactory } from '../../domain/factories/order.factory';
 import { ORDER_REPOSITORY, OrderRepositoryInterface } from '../../domain/interfaces/order-repository.interface';
 import { OrderDomainService } from '../../domain/services/order-domain.service';
 import { OrderProducer } from '../../infrastructure/events/order.producer';
+import { OrderMapper } from '../../infrastructure/mappers/order.mapper';
 import { CreateOrderDto } from '../dto/create-order.dto';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class CreateOrderUseCase {
 
     private readonly domain: OrderDomainService,
     private readonly producer: OrderProducer,
+    private readonly mapper: OrderMapper,
   ) {}
 
   async execute(dto: CreateOrderDto) {
@@ -23,6 +25,7 @@ export class CreateOrderUseCase {
       items: dto.items,
       currency: dto.currency,
       shippingAddress: dto.shippingAddress,
+      tax: dto.tax, // Pass tax from frontend if provided
     });
 
     this.domain.validateOrder(order);
@@ -31,6 +34,7 @@ export class CreateOrderUseCase {
 
     await this.producer.orderCreated(saved);
 
-    return saved;
+    // Return mapped response with proper field names
+    return this.mapper.toResponse(saved);
   }
 }

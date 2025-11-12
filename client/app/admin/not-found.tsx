@@ -26,22 +26,22 @@ export default function AdminNotFound() {
         {/* Animated 404 Icon */}
         <div className="mb-8">
           <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
-            404
+            Upcoming
           </div>
         </div>
 
         {/* Emoji and Message */}
         <div className="mb-8">
-          <div className="text-6xl mb-4">🔧</div>
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Admin Page Not Found
+          <div className="text-6xl mb-4 animate-pulse">🛍️</div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            🚧 Page Under Development
           </h1>
-          <p className="text-xl text-gray-300 mb-2">
-            The admin page you&apos;re looking for doesn&apos;t exist
+          <p className="text-xl text-gray-600 mb-2">
+            We&apos;re currently working hard to bring this page to life.
+            Please check back soon!
           </p>
-          <p className="text-lg text-gray-400">
-            Let&apos;s get you back to your dashboard
-          </p>
+          <div className="animate-pulse text-7xl mb-6">👨‍💻</div>
+
         </div>
 
         {/* Navigation Options */}

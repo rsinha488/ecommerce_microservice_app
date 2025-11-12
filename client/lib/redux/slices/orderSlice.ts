@@ -12,6 +12,8 @@ export interface Order {
   _id: string;
   userId: string;
   items: OrderItem[];
+  subtotal: number;
+  tax: number;
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   shippingAddress: {

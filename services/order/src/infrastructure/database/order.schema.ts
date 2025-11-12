@@ -15,6 +15,12 @@ export class OrderModel {
   items!: any[];
 
   @Prop({ required: true })
+  subtotal!: number;
+
+  @Prop({ required: true })
+  tax!: number;
+
+  @Prop({ required: true })
   total!: number;
 
   @Prop({ default: 'USD' })

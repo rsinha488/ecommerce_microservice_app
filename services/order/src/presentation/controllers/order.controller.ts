@@ -28,14 +28,10 @@ export class OrderController {
   @ApiResponse({
     status: 201,
     description: 'Order created successfully',
-    schema: {
-      example: { id: 'order-123', status: 'PENDING' },
-    },
   })
   @ApiResponse({ status: 400, description: 'Validation failed' })
   async create(@Body() dto: CreateOrderDto) {
-    const order = await this.createOrder.execute(dto);
-    return { id: order.id, status: order.status };
+    return this.createOrder.execute(dto);
   }
 
   // -----------------------------

@@ -8,15 +8,24 @@ export class OrderFactory {
     buyerId: string;
     items: { sku: string; name: string; unitPrice: number; quantity: number }[],
     currency?: string,
-    shippingAddress?: ShippingAddress
+    shippingAddress?: ShippingAddress,
+    tax?: number
   }): Order {
     const id = randomUUID();
     const items = dto.items.map(i => new OrderItem(i.sku, i.name, i.unitPrice, i.quantity));
-    const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+    const subtotal = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+
+    // Calculate tax - use provided tax or calculate 10% if not provided
+    const TAX_RATE = 0.10;
+    const tax = dto.tax !== undefined ? dto.tax : subtotal * TAX_RATE;
+    const total = subtotal + tax;
+
     const order = new Order(
       id,
       dto.buyerId,
       items,
+      subtotal,
+      tax,
       total,
       dto.currency || 'USD',
       'pending',

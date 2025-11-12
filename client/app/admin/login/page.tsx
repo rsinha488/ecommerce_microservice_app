@@ -133,7 +133,7 @@ export default function AdminLoginPage() {
       ).unwrap();
 
       if (result.session_id) {
-        toast.success('Login successful! Redirecting to admin dashboard...', {
+        toast.success('Login successful!', {
           position: 'top-right',
           autoClose: 2000,
         });

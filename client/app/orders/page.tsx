@@ -209,13 +209,23 @@ export default function OrdersPage() {
               )}
 
               <div className="border-t mt-4 pt-4 flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-gray-600">Total Amount</p>
-                  <p className="text-xl font-bold text-gray-300">
-                    ${order.total.toFixed(2)}
-                  </p>
+                <div className="flex-1">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Subtotal</span>
+                      <span>${(order.subtotal || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Tax (10%)</span>
+                      <span>${(order.tax || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
+                      <span>Total</span>
+                      <span>${order.total.toFixed(2)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   {order.status === 'pending' && (
                     <button
                       onClick={(e) => handleCancelOrder(order._id, e)}
@@ -225,13 +235,13 @@ export default function OrdersPage() {
                       {cancelling === order._id ? 'Cancelling...' : 'Cancel Order'}
                     </button>
                   )}
-                  <Link
+                  {/* <Link
                     href={`/orders/${order._id}`}
                     className="btn-outline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     View Details
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             </div>

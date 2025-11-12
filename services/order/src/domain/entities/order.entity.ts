@@ -22,6 +22,8 @@ export class Order {
     public readonly id: string,
     public buyerId: string,
     public items: OrderItem[],
+    public subtotal: number,
+    public tax: number,
     public total: number,
     public currency: string,
     public status: OrderStatus,

@@ -96,7 +96,7 @@ export default function Header() {
       <nav className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <Link href="/products" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <span className="text-2xl" role="img" aria-label="Shopping cart">🛍️</span>
             <span className="text-xl font-bold text-gray-400">E-Shop</span>
           </Link>
@@ -115,22 +115,20 @@ export default function Header() {
             </Link>
             <Link
               href="/products"
-              className={`font-medium transition-colors ${
-                isActiveLink('/products')
+              className={`font-medium transition-colors ${isActiveLink('/products') || isActiveLink('/')
                   ? 'text-primary-600'
                   : 'text-gray-700 hover:text-primary-600'
-              }`}
+                }`}
             >
               Products
             </Link>
             {isAuthenticated && (
               <Link
                 href="/orders"
-                className={`font-medium transition-colors ${
-                  isActiveLink('/orders')
+                className={`font-medium transition-colors ${isActiveLink('/orders')
                     ? 'text-primary-600'
                     : 'text-gray-700 hover:text-primary-600'
-                }`}
+                  }`}
               >
                 Orders
               </Link>
@@ -140,7 +138,7 @@ export default function Header() {
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
-            <Link href={isAuthenticated?"/cart":"/login"} className="relative group">
+            <Link href={isAuthenticated ? "/cart" : "/login"} className="relative group">
               <button
                 className="p-2 text-gray-700 hover:text-primary-600 transition-colors rounded-full hover:bg-gray-100"
                 aria-label={`Shopping cart with ${itemCount} items`}
@@ -243,22 +241,20 @@ export default function Header() {
             <div className="flex flex-col space-y-4">
               <Link
                 href="/"
-                className={`font-medium transition-colors ${
-                  isActiveLink('/')
+                className={`font-medium transition-colors ${isActiveLink('/')
                     ? 'text-primary-600'
                     : 'text-gray-700 hover:text-primary-600'
-                }`}
+                  }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 href="/products"
-                className={`font-medium transition-colors ${
-                  isActiveLink('/products')
+                className={`font-medium transition-colors ${isActiveLink('/products')
                     ? 'text-primary-600'
                     : 'text-gray-700 hover:text-primary-600'
-                }`}
+                  }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Products
@@ -266,11 +262,10 @@ export default function Header() {
               {isAuthenticated && (
                 <Link
                   href="/orders"
-                  className={`font-medium transition-colors ${
-                    isActiveLink('/orders')
+                  className={`font-medium transition-colors ${isActiveLink('/orders')
                       ? 'text-primary-600'
                       : 'text-gray-700 hover:text-primary-600'
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Orders

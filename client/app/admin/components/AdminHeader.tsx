@@ -91,7 +91,8 @@ export default function AdminHeader() {
             >
               Orders
             </Link>
-            <Link
+            {/* Upcoming Inventory and users */}
+            {/* <Link
               href={isAuthenticated ? "/admin/inventory" : ""}
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/inventory')
                 ? 'bg-gray-700 text-white'
@@ -108,7 +109,7 @@ export default function AdminHeader() {
                 }`}
             >
               Users
-            </Link>
+            </Link> */}
           </div> : ""}
 
           {/* Right Side - User Info & Logout */}
@@ -143,14 +144,14 @@ export default function AdminHeader() {
                   Logout
                 </button>
               </div>
-            ) : (
+            ) : (null
               // Not authenticated
-              !isAuthenticated && <Link
-                href="/admin/login"
-                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded transition-colors text-sm font-medium focus:ring-2 focus:ring-primary-300"
-              >
-                Admin Login
-              </Link>
+              // !isAuthenticated && <Link
+              //   href="/admin/login"
+              //   className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded transition-colors text-sm font-medium focus:ring-2 focus:ring-primary-300"
+              // >
+              //   Admin Login
+              // </Link>
             )}
           </div>
         </div>

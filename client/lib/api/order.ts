@@ -182,7 +182,7 @@ export const orderApi = {
         delivered: orders.filter((o) => o.status === 'delivered').length,
         cancelled: orders.filter((o) => o.status === 'cancelled').length,
         totalRevenue: orders
-          .filter((o) => o.status !== 'cancelled')
+          .filter((o) => o.status === 'delivered')
           .reduce((sum, o) => sum + o.total, 0),
       };
       return stats;

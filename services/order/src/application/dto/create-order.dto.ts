@@ -75,4 +75,13 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   currency?: string;
+
+  @ApiProperty({
+    example: 49.9,
+    description: 'Tax amount (optional, will be calculated as 10% if not provided)',
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  tax?: number;
 }

@@ -455,9 +455,19 @@ export default function AdminOrdersPage() {
 
               {/* Order Summary */}
               <div className="border-t pt-4">
-                <div className="flex justify-between items-center text-lg font-bold">
-                  <span>Total Amount:</span>
-                  <span className="text-primary-600">${selectedOrder.total.toFixed(2)}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal:</span>
+                    <span>${(selectedOrder.subtotal || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Tax (10%):</span>
+                    <span>${(selectedOrder.tax || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-lg font-bold pt-2 border-t">
+                    <span>Total Amount:</span>
+                    <span className="text-primary-600">${selectedOrder.total.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </div>

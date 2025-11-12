@@ -117,6 +117,7 @@ export default function CheckoutPage() {
           unitPrice: item.price,
         })),
         shippingAddress,
+        tax, // Include calculated tax (10%)
       };
 
       // Create order

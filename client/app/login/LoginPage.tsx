@@ -136,7 +136,7 @@ export default function LoginPage() {
         ).unwrap();
 
         if (result.session_id) {
-          console.log('Login successful, redirecting...');
+          console.log('Login successful');
           const redirectTo = searchParams.get('redirect') || '/products';
           router.replace(redirectTo);
         }

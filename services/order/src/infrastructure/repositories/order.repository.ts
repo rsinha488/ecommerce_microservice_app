@@ -25,7 +25,7 @@ export class OrderRepository implements OrderRepositoryInterface {
   }
 
   async findAll(filter: any = {}): Promise<Order[]> {
-    const rows = await this.orderModel.find(filter).lean();
+    const rows = await this.orderModel.find(filter).sort({ createdAt: -1 }).lean();
     return rows.map((r) => this.mapper.toDomain(r) as Order);
   }
 

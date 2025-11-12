@@ -63,7 +63,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <p className="text-2xl font-bold text-primary-600">
               ${product.price.toFixed(2)}
             </p>
-            <p className="text-xs text-gray-500">{product.stock} in stock</p>
+            {/* <p className="text-xs text-gray-500">{product.stock} in stock</p> */}
           </div>
 
           <button

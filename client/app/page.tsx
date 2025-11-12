@@ -40,31 +40,31 @@ export default async function HomePage() {
 
       {/* Features Section */}
       <section className="mb-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="card text-center animate-slide-up">
-          <div className="text-4xl mb-4">⚡</div>
-          <h3 className="text-xl font-semibold mb-2">Fast Performance</h3>
+        <div className="card bg-gradient-to-r from-primary-50 to-primary-100 text-center animate-slide-up">
+          <div className="text-4xl mb-4">🔒</div>
+          <h3 className="text-xl font-semibold text-gray-400 mb-2">Secure Shopping</h3>
           <p className="text-gray-600">
-            Server-Side Rendering for lightning-fast page loads
+            Your data is protected with top-notch security measures.
           </p>
         </div>
-        <div className="card text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <div className="text-4xl mb-4">🔄</div>
-          <h3 className="text-xl font-semibold mb-2">State Management</h3>
+        <div className="card bg-gradient-to-r from-primary-50 to-primary-100 text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <div className="text-4xl mb-4">💳</div>
+          <h3 className="text-xl font-semibold text-gray-400 mb-2">Cash on Delivery (CoD)</h3>
           <p className="text-gray-600">
-            Redux Toolkit for efficient and predictable state updates
+            Secure and convenient payment option trusted by customers.
           </p>
         </div>
-        <div className="card text-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <div className="text-4xl mb-4">🎨</div>
-          <h3 className="text-xl font-semibold mb-2">Modern UI</h3>
+        <div className="card bg-gradient-to-r from-primary-50 to-primary-100 text-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="text-4xl mb-4">🚚</div>
+          <h3 className="text-xl font-semibold text-gray-400 mb-2">Fast & Reliable Delivery</h3>
           <p className="text-gray-600">
-            Beautiful, responsive design with Tailwind CSS
+            Real-time shipment tracking and doorstep delivery with trusted partners.
           </p>
         </div>
       </section>
 
       {/* Featured Products Section */}
-      <section>
+      {/* <section>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-300">Featured Products</h2>
           <Link href="/products" className="text-primary-600 hover:text-primary-700 font-semibold">
@@ -89,40 +89,45 @@ export default async function HomePage() {
             </p>
           </div>
         )}
-      </section>
+      </section> */}
 
       {/* SSR Benefits Section */}
       <section className="mt-16 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-4 text-gray-300">
-          Built with Server-Side Rendering (SSR)
+        <h2 className="text-2xl font-bold mb-4 text-gray-900">
+          Shopping Made Easy & Secure
         </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-semibold text-lg mb-2">✓ Better SEO</h3>
+            <h3 className="font-semibold text-gray-400 text-lg mb-2">✓ Cash on Delivery Available</h3>
             <p className="text-gray-700">
-              Search engines can easily crawl and index server-rendered pages
+              Shop confidently with our currently supported Cash on Delivery (CoD) service across major regions.
             </p>
           </div>
+
           <div>
-            <h3 className="font-semibold text-lg mb-2">✓ Faster First Paint</h3>
+            <h3 className="font-semibold text-gray-400 text-lg mb-2">✓ Safe & Verified Login</h3>
             <p className="text-gray-700">
-              Users see content immediately without waiting for JavaScript
+              We use OAuth 2.0 with OpenID Connect for secure authentication and identity protection.
             </p>
           </div>
+
           <div>
-            <h3 className="font-semibold text-lg mb-2">✓ Improved Performance</h3>
+            <h3 className="font-semibold text-gray-400 text-lg mb-2">✓ Smooth Shopping Experience</h3>
             <p className="text-gray-700">
-              Reduced Time to Interactive and better Core Web Vitals
+              Enjoy fast browsing, easy navigation, and personalized product recommendations.
             </p>
           </div>
+
           <div>
-            <h3 className="font-semibold text-lg mb-2">✓ Social Sharing</h3>
+            <h3 className="font-semibold text-gray-400 text-lg mb-2">✓ Trusted & Transparent</h3>
             <p className="text-gray-700">
-              Rich previews when sharing links on social media
+              Clear pricing, real-time updates, and reliable service for every order you place.
             </p>
           </div>
         </div>
       </section>
+
     </div>
   );
 }

@@ -97,8 +97,11 @@ export class RealtimeGateway
     this.logger.log(
       `✅ User connected → userId: ${userId}, socketId: ${client.id}`,
     );
+
+    // Safely get the total connection count
+    const totalConnections = this.server?.engine?.clientsCount || 0;
     this.logger.log(
-      `📊 Total connections: ${this.server.sockets.sockets.size}`,
+      `📊 Total connections: ${totalConnections}`,
     );
 
     // Send welcome message
@@ -133,8 +136,10 @@ export class RealtimeGateway
       }
     }
 
+    // Safely get the total connection count
+    const totalConnections = this.server?.engine?.clientsCount || 0;
     this.logger.log(
-      `📊 Total connections: ${this.server.sockets.sockets.size}`,
+      `📊 Total connections: ${totalConnections}`,
     );
   }
 
@@ -144,9 +149,11 @@ export class RealtimeGateway
   @SubscribeMessage('subscribe:orders')
   handleSubscribeOrders(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { userId: string },
+    @MessageBody() data?: { userId?: string },
   ) {
-    const room = `orders:${data.userId}`;
+    // Get userId from data payload or from query params
+    const userId = data?.userId || (client.handshake.query.userId as string);
+    const room = `orders:${userId}`;
     client.join(room);
     this.logger.log(`📦 Client ${client.id} subscribed to orders: ${room}`);
     return { event: 'subscribed', data: { room, type: 'orders' } };
@@ -203,7 +210,7 @@ export class RealtimeGateway
     }
 
     const stats = {
-      totalConnections: this.server.sockets.sockets.size,
+      totalConnections: this.server?.engine?.clientsCount || 0,
       uniqueUsers: this.connectedUsers.size,
       timestamp: new Date().toISOString(),
     };
@@ -338,7 +345,7 @@ export class RealtimeGateway
    */
   getStats() {
     return {
-      totalConnections: this.server.sockets.sockets.size,
+      totalConnections: this.server?.engine?.clientsCount || 0,
       uniqueUsers: this.connectedUsers.size,
       userConnections: Array.from(this.connectedUsers.entries()).map(
         ([userId, sockets]) => ({
