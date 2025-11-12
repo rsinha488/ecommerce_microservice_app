@@ -74,12 +74,23 @@ export class WebSocketService {
     });
   }
 
-  subscribeToOrders(callback: (data: any) => void): void {
+  subscribeToOrders(callbacks: {
+    onCreated?: (data: any) => void;
+    onUpdated?: (data: any) => void;
+    onCancelled?: (data: any) => void;
+  }): void {
     if (!this.socket) return;
     this.socket.emit('subscribe:orders');
-    this.socket.on('order:created', callback);
-    this.socket.on('order:updated', callback);
-    this.socket.on('order:cancelled', callback);
+
+    if (callbacks.onCreated) {
+      this.socket.on('order:created', callbacks.onCreated);
+    }
+    if (callbacks.onUpdated) {
+      this.socket.on('order:updated', callbacks.onUpdated);
+    }
+    if (callbacks.onCancelled) {
+      this.socket.on('order:cancelled', callbacks.onCancelled);
+    }
   }
 
   subscribeToInventory(callback: (data: any) => void): void {

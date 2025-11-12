@@ -105,19 +105,18 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className={`font-medium transition-colors ${
-                isActiveLink('/')
+              className={`font-medium transition-colors ${isActiveLink('/')
                   ? 'text-primary-600'
                   : 'text-gray-700 hover:text-primary-600'
-              }`}
+                }`}
             >
               Home
             </Link>
             <Link
               href="/products"
-              className={`font-medium transition-colors ${isActiveLink('/products') || isActiveLink('/')
-                  ? 'text-primary-600'
-                  : 'text-gray-700 hover:text-primary-600'
+              className={`font-medium transition-colors ${isActiveLink('/products')
+                ? 'text-primary-600'
+                : 'text-gray-700 hover:text-primary-600'
                 }`}
             >
               Products
@@ -126,8 +125,8 @@ export default function Header() {
               <Link
                 href="/orders"
                 className={`font-medium transition-colors ${isActiveLink('/orders')
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600'
+                  : 'text-gray-700 hover:text-primary-600'
                   }`}
               >
                 Orders
@@ -242,8 +241,8 @@ export default function Header() {
               <Link
                 href="/"
                 className={`font-medium transition-colors ${isActiveLink('/')
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600'
+                  : 'text-gray-700 hover:text-primary-600'
                   }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -252,8 +251,8 @@ export default function Header() {
               <Link
                 href="/products"
                 className={`font-medium transition-colors ${isActiveLink('/products')
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600'
+                  : 'text-gray-700 hover:text-primary-600'
                   }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -263,8 +262,8 @@ export default function Header() {
                 <Link
                   href="/orders"
                   className={`font-medium transition-colors ${isActiveLink('/orders')
-                      ? 'text-primary-600'
-                      : 'text-gray-700 hover:text-primary-600'
+                    ? 'text-primary-600'
+                    : 'text-gray-700 hover:text-primary-600'
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

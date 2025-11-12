@@ -61,7 +61,7 @@ export const createOrder = createAsyncThunk(
     }
   }
 );
-
+// Fetch all orders
 export const fetchOrders = createAsyncThunk('order/orders', async (_, { rejectWithValue }) => {
   try {
     const response = await orderApi.getOrders();
@@ -70,7 +70,7 @@ export const fetchOrders = createAsyncThunk('order/orders', async (_, { rejectWi
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch orders');
   }
 });
-
+// Get order by id
 export const fetchOrderById = createAsyncThunk(
   'order/orders/',
   async (id: string, { rejectWithValue }) => {
