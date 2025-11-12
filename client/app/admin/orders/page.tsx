@@ -451,8 +451,6 @@ export default function AdminOrdersPage() {
                   <p className="text-sm text-gray-500">No shipping address provided</p>
                 </div>
               )}
-              </div>
-
               {/* Order Summary */}
               <div className="border-t pt-4">
                 <div className="space-y-2">
@@ -472,6 +470,7 @@ export default function AdminOrdersPage() {
               </div>
             </div>
           </div>
+        </div>
       )}
     </div>
   );

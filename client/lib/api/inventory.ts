@@ -5,6 +5,7 @@ import { inventoryClient } from './client';
  */
 export interface InventoryItem {
   sku: string;
+  name: string;
   stock: number;
   reserved: number;
   sold: number;
@@ -85,10 +86,20 @@ export const inventoryApi = {
    * @returns Array of inventory items
    */
   async listInventory(): Promise<InventoryItem[]> {
-    const response = await inventoryClient.get('/inventory');
-    if (!response.data.success) {
+    const response = await inventoryClient.get('/inventory/inventory');
+    console.log('Inventory list response:', response.data);
+    if (!response.data.data.success) {
       throw new Error(response.data.message || 'Failed to fetch inventory list');
     }
-    return response.data.data;
+    return response.data.data.data;
+  },
+
+  /**
+   * Get all inventory items (alias for listInventory)
+   *
+   * @returns Array of inventory items
+   */
+  async getAllInventory(): Promise<InventoryItem[]> {
+    return this.listInventory();
   },
 };

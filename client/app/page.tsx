@@ -28,13 +28,11 @@ export default async function HomePage() {
         <p className="text-xl text-gray-600 mb-8">
           Discover amazing products with Server-Side Rendering and Redux Toolkit
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex justify-center">
           <Link href="/products" className="btn-primary text-lg">
             Shop Now
           </Link>
-          <Link href="/about" className="btn-outline text-lg">
-            Learn More
-          </Link>
+      
         </div>
       </section>
 

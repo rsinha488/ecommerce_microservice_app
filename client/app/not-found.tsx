@@ -26,8 +26,8 @@ export default function NotFound() {
       <div className="max-w-2xl w-full text-center">
         {/* Animated 404 Icon */}
         <div className="mb-8 animate-bounce">
-          <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
-            Upcoming
+          <div className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
+             Coming soon
           </div>
         </div>
 
@@ -105,31 +105,6 @@ export default function NotFound() {
             </svg>
             Go Home
           </Link>
-        </div>
-
-        {/* Help Text */}
-        <div className="mt-12 p-6 bg-white rounded-lg shadow-sm">
-          <p className="text-sm text-gray-600 mb-4">
-            <strong>Still lost?</strong> Here are some helpful tips:
-          </p>
-          <ul className="text-sm text-gray-600 space-y-2 text-left max-w-md mx-auto">
-            <li className="flex items-start">
-              <span className="text-primary-600 mr-2">•</span>
-              <span>Check the URL for typos</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-primary-600 mr-2">•</span>
-              <span>The page might have been moved or deleted</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-primary-600 mr-2">•</span>
-              <span>Try using the search or navigation menu</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-primary-600 mr-2">•</span>
-              <span>Contact support if you think this is an error</span>
-            </li>
-          </ul>
         </div>
 
         {/* Decorative Elements */}

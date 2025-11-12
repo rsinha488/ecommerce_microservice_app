@@ -77,6 +77,7 @@ export class ProxyController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
+    console.log('Proxying inventory request:', req.method, req.url);
     return this.proxyService.proxyRequest('inventory', req, res);
   }
 

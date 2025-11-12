@@ -74,6 +74,7 @@ export class DeductStockUseCase {
       // Deduct stock atomically (reduces stock, reserved, and increments sold)
       const updatedInventory = await this.repository.deductStock(sku, quantity);
 
+      console.log('Updated inventory after deduction:', JSON.stringify(updatedInventory));
       // Emit inventory deducted event
       await this.producer.publishStockDeducted({
         orderId,

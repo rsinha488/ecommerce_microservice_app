@@ -91,9 +91,8 @@ export default function AdminHeader() {
             >
               Orders
             </Link>
-            {/* Upcoming Inventory and users */}
-            {/* <Link
-              href={isAuthenticated ? "/admin/inventory" : ""}
+            <Link
+              href="/admin/inventory"
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/inventory')
                 ? 'bg-gray-700 text-white'
                 : 'text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -101,7 +100,8 @@ export default function AdminHeader() {
             >
               Inventory
             </Link>
-            <Link
+            {/* Upcoming users management */}
+            {/* <Link
               href={isAuthenticated ? "/admin/users" : "#"}
               className={`font-medium transition-colors px-3 py-2 rounded ${isActiveLink('/admin/users')
                 ? 'bg-gray-700 text-white'

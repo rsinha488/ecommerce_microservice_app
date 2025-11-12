@@ -165,6 +165,7 @@ export class InventoryRepository {
   async deductStock(sku: string, quantity: number): Promise<InventoryItem> {
     // Deduct from both stock and reserved, add to sold
     // Ensure both stock and reserved have sufficient quantity
+    console.log('Attempting to deduct stock:', { sku, quantity });
     const updated = await this.model
       .findOneAndUpdate(
         {

@@ -17,7 +17,7 @@ import { InventoryRepository } from '../../infrastructure/repositories/inventory
  * - GET /inventory - List inventory items
  * - GET /inventory/batch - Get inventory for multiple SKUs (NEW)
  */
-@Controller('inventory')
+@Controller('inventory/inventory')
 export class InventoryController {
   constructor(
     private readonly createUseCase: CreateItemUseCase,

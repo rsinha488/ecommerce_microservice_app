@@ -51,13 +51,16 @@ export class OrderInventoryHandler implements OnModuleInit {
   async onModuleInit() {
     this.logger.log('🔄 Initializing Order-Inventory Event Handler...');
 
-    // Subscribe to order lifecycle events
+    // Subscribe to order lifecycle events (register handlers)
     await this.kafkaConsumer.subscribe('order.created', this.handleOrderCreated.bind(this));
     await this.kafkaConsumer.subscribe('order.updated', this.handleOrderUpdated.bind(this));
     await this.kafkaConsumer.subscribe('order.cancelled', this.handleOrderCancelled.bind(this));
     await this.kafkaConsumer.subscribe('order.delivered', this.handleOrderDelivered.bind(this));
     await this.kafkaConsumer.subscribe('order.shipped', this.handleOrderShipped.bind(this));
     await this.kafkaConsumer.subscribe('order.paid', this.handleOrderPaid.bind(this));
+
+    // Start consuming after all handlers are registered
+    await this.kafkaConsumer.startConsuming();
 
     this.logger.log('✅ Order-Inventory Event Handler initialized successfully');
   }

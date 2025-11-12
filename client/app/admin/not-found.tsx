@@ -25,8 +25,8 @@ export default function AdminNotFound() {
       <div className="max-w-2xl w-full text-center">
         {/* Animated 404 Icon */}
         <div className="mb-8">
-          <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
-            Upcoming
+          <div className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
+            Coming soon
           </div>
         </div>
 

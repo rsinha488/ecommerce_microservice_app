@@ -9,6 +9,7 @@ export class KafkaConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(KafkaConsumer.name);
   private consumer: Consumer;
   private handlers = new Map<string, Handler>();
+  private isRunning = false;
 
   constructor(private readonly cfg: KafkaConfig) {}
 
@@ -39,11 +40,34 @@ export class KafkaConsumer implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    await this.consumer.subscribe({ topic, fromBeginning: false });
+    // Register the handler first (don't subscribe yet)
     this.handlers.set(topic, handler);
+    this.logger.log(`✅ Registered handler for topic=${topic}`);
+  }
 
+  /**
+   * Start the consumer - should be called after all subscriptions are registered
+   */
+  async startConsuming(): Promise<void> {
+    if (this.isRunning) {
+      this.logger.warn('Kafka Consumer is already running');
+      return;
+    }
+
+    if (this.handlers.size === 0) {
+      this.logger.warn('No handlers registered, skipping consumer start');
+      return;
+    }
+
+    // Subscribe to all registered topics
+    for (const topic of this.handlers.keys()) {
+      await this.consumer.subscribe({ topic, fromBeginning: false });
+      this.logger.log(`✅ Subscribed to topic=${topic}`);
+    }
+
+    this.isRunning = true;
     await this.consumer.run({
-      eachMessage: async ({ message, partition }) => {
+      eachMessage: async ({ topic, message, partition }) => {
         if (!message.value) {
           this.logger.warn(`⚠️ Empty message on topic=${topic} partition=${partition} — skipping`);
           return;
@@ -59,6 +83,13 @@ export class KafkaConsumer implements OnModuleInit, OnModuleDestroy {
           return;
         }
 
+        // Get the handler for this topic
+        const handler = this.handlers.get(topic);
+        if (!handler) {
+          this.logger.warn(`⚠️ No handler registered for topic=${topic}`);
+          return;
+        }
+
         try {
           await handler(payload);
         } catch (err) {
@@ -67,8 +98,7 @@ export class KafkaConsumer implements OnModuleInit, OnModuleDestroy {
         }
       },
     });
-
-    this.logger.log(`✅ Subscribed handler to topic=${topic}`);
+    this.logger.log('✅ Kafka Consumer is running');
   }
 
   async onModuleDestroy(): Promise<void> {

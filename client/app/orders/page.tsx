@@ -225,7 +225,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex space-x-2">
                   {order.status === 'pending' && (
                     <button
                       onClick={(e) => handleCancelOrder(order._id, e)}
