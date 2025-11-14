@@ -3,7 +3,8 @@
 import { productApi } from '@/lib/api/product';
 import { ProductsClient } from '@/components/ProductsClient';
 import { Product } from '@/lib/redux/slices/productSlice';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 export const dynamic = "force-dynamic";
 
 
@@ -23,36 +24,52 @@ export const dynamic = "force-dynamic";
  * @returns Products page with search and filter capabilities
  */
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
 
+  // Infinite scroll for products
+  const fetchProducts = async (page: number, pageSize: number) => {
+    const response = await productApi.getProducts({ page, limit: pageSize });
+    return response.data || [];
+  };
+
+  const {
+    items: products,
+    loading,
+    error: scrollError,
+    hasMore,
+    setLastElementRef,
+  } = useInfiniteScroll<Product>(fetchProducts, 1, 20);
+
+  const [error, setError] = useState<string | null>(scrollError);
+
+  // Update error state when scroll error occurs
   useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  /**
-   * Fetch all products from the API
-   */
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await productApi.getProducts({
-        page: 1,
-        limit: 100, // Load all products
-      });
-      setProducts(response.data || []); setProducts(response.data || []);
-
-    } catch (err: any) {
-      setError(err.message || 'Failed to load products');
-      console.error('Error fetching products:', err);
-    } finally {
-      setLoading(false);
+    if (scrollError) {
+      setError(scrollError);
     }
-  }
-  // Show loading state
-  if (loading) {
+  }, [scrollError]);
+
+  // Filter products based on search and category
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesCategory = !filterCategory || product.category === filterCategory;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchTerm, filterCategory]);
+
+  // Get unique categories from products
+  const categories = useMemo(() => {
+    return Array.from(new Set(products.map((p) => p.category)));
+  }, [products]);
+
+  // Show loading state only on initial load
+  if (loading && products.length === 0) {
     return (
       <div className="container-custom py-12">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -74,8 +91,42 @@ export default function ProductsPage() {
         </p>
       </div>
 
-      {/* Client-side filters and search */}
-      <ProductsClient initialProducts={products} />
+      {/* Search and Filter */}
+      <div className="card mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search by name or description..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input w-full"
+            />
+          </div>
+          <div className="w-full md:w-48">
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="input w-full"
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {/* {(searchTerm || filterCategory) && (
+          <div className="mt-4 text-sm text-gray-600">
+            Showing {filteredProducts.length} of {products.length} products
+          </div>
+        )} */}
+      </div>
+
+      {/* Product Grid */}
+      <ProductsClient initialProducts={filteredProducts} />
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
@@ -87,6 +138,28 @@ export default function ProductsPage() {
       {!error && !loading && products.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-600">No products found</p>
+        </div>
+      )}
+
+      {/* Infinite Scroll Trigger */}
+      {hasMore && !loading && products.length > 0 && (
+        <div ref={setLastElementRef} className="py-8 text-center">
+          <div className="animate-pulse text-gray-600">Loading more products...</div>
+        </div>
+      )}
+
+      {/* Loading More Indicator */}
+      {loading && products.length > 0 && (
+        <div className="py-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading more products...</p>
+        </div>
+      )}
+
+      {/* No More Items */}
+      {!hasMore && products.length > 0 && !loading && (
+        <div className="py-8 text-center text-gray-500">
+          <p>All products loaded</p>
         </div>
       )}
     </div>

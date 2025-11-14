@@ -66,7 +66,8 @@ export const fetchProductById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await productApi.getProductById(id);
-      return response;
+      // Handle both wrapped and direct response formats
+      return (response as any)?.data || response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch product');
     }

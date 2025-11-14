@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/lib/redux/hooks';
 import { orderApi } from '@/lib/api/order';
 import { Order } from '@/lib/redux/slices/orderSlice';
 import { toast } from 'react-toastify';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 /**
  * Admin Orders Management Page
@@ -27,10 +28,6 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useAppSelector((state) => state.auth);
 
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -44,6 +41,23 @@ export default function AdminOrdersPage() {
     cancelled: 0,
     totalRevenue: 0,
   });
+
+  // Infinite scroll for orders
+  const fetchOrders = async (page: number, pageSize: number) => {
+    const orders = await orderApi.getOrders({ page, limit: pageSize });
+    return orders;
+  };
+
+  const {
+    items: orders,
+    loading,
+    error: scrollError,
+    hasMore,
+    setLastElementRef,
+    reset,
+  } = useInfiniteScroll<Order>(fetchOrders, 1, 20);
+
+  const [error, setError] = useState<string | null>(scrollError);
 
   useEffect(() => {
     // Redirect if not authenticated
@@ -60,15 +74,21 @@ export default function AdminOrdersPage() {
       return;
     }
 
-    // Fetch orders when authenticated as admin
+    // Fetch stats when authenticated as admin
     if (isAuthenticated && isAdmin) {
-      fetchOrders();
       fetchStats();
     }
   }, [isAuthenticated, user, authLoading, router]);
 
+  // Update error state when scroll error occurs
   useEffect(() => {
-    // Apply filters
+    if (scrollError) {
+      setError(scrollError);
+    }
+  }, [scrollError]);
+
+  // Apply client-side filters
+  const filteredOrders = useMemo(() => {
     let filtered = orders;
 
     // Status filter
@@ -85,27 +105,8 @@ export default function AdminOrdersPage() {
       );
     }
 
-    setFilteredOrders(filtered);
+    return filtered;
   }, [orders, statusFilter, searchTerm]);
-
-  /**
-   * Fetch all orders
-   */
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const allOrders = await orderApi.getOrders();
-      setOrders(allOrders);
-      setFilteredOrders(allOrders);
-    } catch (err: any) {
-      console.error('Error fetching orders:', err);
-      setError(err.message || 'Failed to load orders');
-      toast.error('Failed to load orders');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /**
    * Fetch order statistics
@@ -128,12 +129,8 @@ export default function AdminOrdersPage() {
       await orderApi.updateOrderStatus(orderId, newStatus);
       toast.success(`Order status updated to ${newStatus}`);
 
-      // Update local state
-      setOrders(
-        orders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
+      // Refresh orders
+      reset();
 
       if (selectedOrder?._id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
@@ -274,6 +271,7 @@ export default function AdminOrdersPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="input w-full"
+              disabled={statusFilter === 'delivered' || statusFilter === 'cancelled'}
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
@@ -283,7 +281,7 @@ export default function AdminOrdersPage() {
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-          <button onClick={fetchOrders} className="btn-secondary whitespace-nowrap">
+          <button onClick={() => reset()} className="btn-secondary whitespace-nowrap">
             <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
@@ -357,7 +355,7 @@ export default function AdminOrdersPage() {
                       <select
                         value={order.status}
                         onChange={(e) => handleUpdateStatus(order._id, e.target.value as Order['status'])}
-                        disabled={updatingStatus === order._id}
+                        disabled={updatingStatus === order._id || order.status === 'delivered' || order.status === 'cancelled'}
                         className={`text-sm font-semibold rounded-full px-3 py-1 ${getStatusColor(order.status)} disabled:opacity-50`}
                       >
                         <option value="pending">Pending</option>
@@ -383,6 +381,28 @@ export default function AdminOrdersPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Infinite Scroll Trigger */}
+      {hasMore && !loading && orders.length > 0 && (
+        <div ref={setLastElementRef} className="py-8 text-center">
+          <div className="animate-pulse text-gray-600">Loading more orders...</div>
+        </div>
+      )}
+
+      {/* Loading More Indicator */}
+      {loading && orders.length > 0 && (
+        <div className="py-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading more orders...</p>
+        </div>
+      )}
+
+      {/* No More Items */}
+      {!hasMore && orders.length > 0 && !loading && (
+        <div className="py-8 text-center text-gray-500">
+          <p>No more orders to load</p>
         </div>
       )}
 

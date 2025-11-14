@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { fetchOrders } from '@/lib/redux/slices/orderSlice';
 import { useWebSocket } from '@/hooks/useWebSocket';
@@ -16,18 +16,62 @@ export default function OrdersPage() {
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
+  const [displayCount, setDisplayCount] = useState(10);
+  const itemsPerPage = 10;
 
   // Initialize WebSocket connection for real-time order updates
   useWebSocket();
 
   // Filter orders for current user
-  const userOrders = orders.filter(order => order.userId === user?.id);
+  const allUserOrders = useMemo(() =>
+    orders.filter(order => order.userId === user?.id),
+    [orders, user?.id]
+  );
+
+  // Display only a subset for infinite scroll
+  const userOrders = useMemo(() =>
+    allUserOrders.slice(0, displayCount),
+    [allUserOrders, displayCount]
+  );
+
+  const hasMore = userOrders.length < allUserOrders.length;
 
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchOrders());
     }
   }, [dispatch, isAuthenticated]);
+
+  /**
+   * Load more orders
+   */
+  const loadMore = () => {
+    setDisplayCount((prev) => prev + itemsPerPage);
+  };
+
+  // Intersection Observer for infinite scroll
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasMore, loading]);
 
   /**
    * Handle order cancellation
@@ -225,6 +269,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
                 </div>
+              </div>
                 <div className="flex space-x-2">
                   {order.status === 'pending' && (
                     <button
@@ -243,9 +288,22 @@ export default function OrdersPage() {
                     View Details
                   </Link> */}
                 </div>
-              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Infinite Scroll Trigger */}
+      {hasMore && !loading && userOrders.length > 0 && (
+        <div ref={observerTarget} className="py-8 text-center">
+          <div className="animate-pulse text-gray-600">Loading more orders...</div>
+        </div>
+      )}
+
+      {/* No More Items */}
+      {!hasMore && userOrders.length > 0 && !loading && (
+        <div className="py-8 text-center text-gray-500">
+          <p>All orders loaded ({allUserOrders.length} total)</p>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-export type OrderStatus = 'pending' | 'paid' | 'cancelled' | 'shipped' | 'delivered';
+export type OrderStatus = 'pending' | 'processing' |'paid' | 'cancelled' | 'shipped' | 'delivered';
 
 export class OrderItem {
   constructor(

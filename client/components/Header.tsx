@@ -191,13 +191,15 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              // Unauthenticated user
-              <Link
-                href="/login"
-                className="btn-primary text-sm hover:bg-primary-700 focus:ring-2 focus:ring-primary-300"
-              >
-                Sign In
-              </Link>
+              // Unauthenticated user - hide sign in button on login/register pages
+              !pathname.startsWith('/login') && !pathname.startsWith('/register') && (
+                <Link
+                  href="/login"
+                  className="btn-primary text-sm hover:bg-primary-700 focus:ring-2 focus:ring-primary-300"
+                >
+                  Sign In
+                </Link>
+              )
             )}
 
             {/* Mobile Menu Button */}

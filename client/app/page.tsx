@@ -11,7 +11,7 @@ export default async function HomePage() {
   let error = null;
 
   try {
-    const response = await productApi.getProducts({ page: 1, limit: 8 });
+    const response = await productApi.getProducts({ page: 1, limit: 10 });
     products = response.data || [];
   } catch (err: any) {
     error = err.message;
@@ -38,21 +38,21 @@ export default async function HomePage() {
 
       {/* Features Section */}
       <section className="mb-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="card bg-gradient-to-r from-primary-50 to-primary-100 text-center animate-slide-up">
+        <div className="card text-center animate-slide-up">
           <div className="text-4xl mb-4">🔒</div>
           <h3 className="text-xl font-semibold text-gray-400 mb-2">Secure Shopping</h3>
           <p className="text-gray-600">
             Your data is protected with top-notch security measures.
           </p>
         </div>
-        <div className="card bg-gradient-to-r from-primary-50 to-primary-100 text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="card text-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <div className="text-4xl mb-4">💳</div>
           <h3 className="text-xl font-semibold text-gray-400 mb-2">Cash on Delivery (CoD)</h3>
           <p className="text-gray-600">
             Secure and convenient payment option trusted by customers.
           </p>
         </div>
-        <div className="card bg-gradient-to-r from-primary-50 to-primary-100 text-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <div className="card text-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="text-4xl mb-4">🚚</div>
           <h3 className="text-xl font-semibold text-gray-400 mb-2">Fast & Reliable Delivery</h3>
           <p className="text-gray-600">

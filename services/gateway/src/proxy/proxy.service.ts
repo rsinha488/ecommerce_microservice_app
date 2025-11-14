@@ -21,9 +21,9 @@ export class ProxyService {
   private currentIndex: Map<string, number> = new Map();
 
   // Circuit breaker configuration
-  private readonly FAILURE_THRESHOLD = 5; // Open circuit after 5 consecutive failures
+  private readonly FAILURE_THRESHOLD = 25; // Open circuit after 5 consecutive failures
   private readonly CIRCUIT_TIMEOUT = 30000; // Half-open after 30 seconds
-  private readonly SUCCESS_THRESHOLD = 3; // Close circuit after 3 successful requests
+  private readonly SUCCESS_THRESHOLD = 5; // Close circuit after 3 successful requests
 
   // Headers that should NOT be forwarded
   private readonly headersToRemove = [

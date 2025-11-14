@@ -28,9 +28,32 @@ const createApiClient = (baseURL: string): AxiosInstance => {
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        // Handle unauthorized access - redirect to login
+        // we need to check if user is already at login or sign up or products (basically public urls) page(user or admin) then do not redirect 
         if (typeof window !== 'undefined') {
-          // window.location.href = '/login';
+          const currentPath = window.location.pathname;
+
+          // Define public routes for both user and admin
+          const publicPaths = [
+            '/login',
+            '/register',
+            '/products',
+            '/admin/login',
+            '/admin/register',
+          ];
+
+          // Check if the current path is public
+          const isPublicPage = publicPaths.some((path) =>
+            currentPath.startsWith(path)
+          );
+
+          // Only redirect if not already on a public page
+          if (!isPublicPage) {
+            if (currentPath.startsWith('/admin')) {
+              window.location.href = '/admin/login';
+            } else {
+              window.location.href = '/login';
+            }
+          }
         }
       }
       return Promise.reject(error);
@@ -47,7 +70,7 @@ export const productClient = createApiClient(API_URLS.product);
 export const inventoryClient = createApiClient(API_URLS.inventory);
 export const orderClient = createApiClient(API_URLS.order);
 
- const apiClients = {
+const apiClients = {
   auth: authClient,
   user: userClient,
   product: productClient,

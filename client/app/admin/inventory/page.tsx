@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/lib/redux/hooks';
 import { inventoryApi, InventoryItem } from '@/lib/api/inventory';
@@ -26,12 +26,13 @@ export default function AdminInventoryPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useAppSelector((state) => state.auth);
 
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>([]);
+  const [allInventory, setAllInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [stockFilter, setStockFilter] = useState<string>('all');
+  const [displayCount, setDisplayCount] = useState(20);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     // Redirect if not authenticated
@@ -54,31 +55,6 @@ export default function AdminInventoryPage() {
     }
   }, [isAuthenticated, user, authLoading, router]);
 
-  useEffect(() => {
-    // Apply filters
-    let filtered = inventory;
-
-    // Stock level filter
-    if (stockFilter === 'low') {
-      filtered = filtered.filter((item) => item.available > 0 && item.available < 10);
-    } else if (stockFilter === 'out') {
-      filtered = filtered.filter((item) => item.available === 0);
-    } else if (stockFilter === 'reserved') {
-      filtered = filtered.filter((item) => item.reserved > 0);
-    }
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (item) =>
-          item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredInventory(filtered);
-  }, [inventory, stockFilter, searchTerm]);
-
   /**
    * Fetch all inventory items
    */
@@ -87,8 +63,8 @@ export default function AdminInventoryPage() {
       setLoading(true);
       setError(null);
       const items = await inventoryApi.getAllInventory();
-      setInventory(items);
-      setFilteredInventory(items);
+      setAllInventory(items);
+      setDisplayCount(20); // Reset display count
     } catch (err: any) {
       console.error('Error fetching inventory:', err);
       setError(err.message || 'Failed to load inventory');
@@ -97,6 +73,74 @@ export default function AdminInventoryPage() {
       setLoading(false);
     }
   };
+
+  /**
+   * Load more items (infinite scroll simulation)
+   */
+  const loadMore = () => {
+    setDisplayCount((prev) => prev + itemsPerPage);
+  };
+
+  // Apply filters and get displayed items
+  const filteredInventory = useMemo(() => {
+    let filtered = allInventory;
+
+    // Stock level filter
+    if (stockFilter === 'low') {
+      filtered = filtered.filter((item: InventoryItem) => item.available > 0 && item.available < 10);
+    } else if (stockFilter === 'out') {
+      filtered = filtered.filter((item: InventoryItem) => item.available === 0);
+    } else if (stockFilter === 'reserved') {
+      filtered = filtered.filter((item: InventoryItem) => item.reserved > 0);
+    }
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (item: InventoryItem) =>
+          item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Return only the items to display (for infinite scroll effect)
+    return filtered.slice(0, displayCount);
+  }, [allInventory, stockFilter, searchTerm, displayCount]);
+
+  const hasMore = filteredInventory.length < allInventory.filter((item: InventoryItem) => {
+    if (stockFilter === 'low') return item.available > 0 && item.available < 10;
+    if (stockFilter === 'out') return item.available === 0;
+    if (stockFilter === 'reserved') return item.reserved > 0;
+    if (searchTerm) {
+      return item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    return true;
+  }).length;
+
+  // Intersection Observer for infinite scroll
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasMore, loading]);
 
   /**
    * Get stock status badge
@@ -114,15 +158,15 @@ export default function AdminInventoryPage() {
   /**
    * Calculate statistics
    */
-  const stats = {
-    totalItems: inventory.length,
-    totalStock: inventory.reduce((sum, item) => sum + item.stock, 0),
-    totalReserved: inventory.reduce((sum, item) => sum + item.reserved, 0),
-    totalAvailable: inventory.reduce((sum, item) => sum + item.available, 0),
-    totalSold: inventory.reduce((sum, item) => sum + item.sold, 0),
-    lowStock: inventory.filter((item) => item.available > 0 && item.available < 10).length,
-    outOfStock: inventory.filter((item) => item.available === 0).length,
-  };
+  const stats = useMemo(() => ({
+    totalItems: allInventory.length,
+    totalStock: allInventory.reduce((sum: number, item: InventoryItem) => sum + item.stock, 0),
+    totalReserved: allInventory.reduce((sum: number, item: InventoryItem) => sum + item.reserved, 0),
+    totalAvailable: allInventory.reduce((sum: number, item: InventoryItem) => sum + item.available, 0),
+    totalSold: allInventory.reduce((sum: number, item: InventoryItem) => sum + item.sold, 0),
+    lowStock: allInventory.filter((item: InventoryItem) => item.available > 0 && item.available < 10).length,
+    outOfStock: allInventory.filter((item: InventoryItem) => item.available === 0).length,
+  }), [allInventory]);
 
   // Show loading state
   if (authLoading || loading) {
@@ -147,7 +191,7 @@ export default function AdminInventoryPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="card bg-gradient-to-br from-blue-50 to-blue-100">
           <div className="flex items-center justify-between">
             <div>
@@ -338,6 +382,20 @@ export default function AdminInventoryPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Infinite Scroll Trigger */}
+      {hasMore && !loading && filteredInventory.length > 0 && (
+        <div ref={observerTarget} className="py-8 text-center">
+          <div className="animate-pulse text-gray-600">Loading more items...</div>
+        </div>
+      )}
+
+      {/* No More Items */}
+      {!hasMore && filteredInventory.length > 0 && !loading && (
+        <div className="py-8 text-center text-gray-500">
+          <p>All items loaded ({filteredInventory.length} total)</p>
         </div>
       )}
     </div>

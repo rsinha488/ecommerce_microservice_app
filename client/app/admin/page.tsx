@@ -8,6 +8,7 @@ import { Product } from '@/lib/redux/slices/productSlice';
 import ProductForm from './components/ProductForm';
 import ProductList from './components/ProductList';
 import { toast } from 'react-toastify';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 /**
  * Admin Dashboard Page
@@ -35,14 +36,28 @@ export default function AdminDashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAppSelector((state) => state.auth);
 
   // State management
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [authChecked, setAuthChecked] = useState(false);
+
+  // Infinite scroll hook
+  const fetchProducts = async (page: number, pageSize: number) => {
+    const response = await productApi.getProducts({ page, limit: pageSize });
+    return response.data || [];
+  };
+
+  const {
+    items: products,
+    loading,
+    error: scrollError,
+    hasMore,
+    setLastElementRef,
+    reset,
+  } = useInfiniteScroll<Product>(fetchProducts, 1, 20);
+
+  const [error, setError] = useState<string | null>(scrollError);
 
   /**
    * Check authentication and admin role on mount
@@ -71,30 +86,14 @@ export default function AdminDashboard() {
       router.replace('/products');
       return;
     }
-
-    // Load products
-    fetchProducts();
   }, [isAuthenticated, user, authLoading, router]);
 
-  /**
-   * Fetch all products from the API
-   */
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await productApi.getProducts({ limit: 100 });
-      setProducts(response.data || []);
-    } catch (err: any) {
-      console.error('Error fetching products:', err);
-      setError(err.message || 'Failed to load products');
-      toast.error('Failed to load products', {
-        position: 'top-right',
-      });
-    } finally {
-      setLoading(false);
+  // Update error state when scroll error occurs
+  useEffect(() => {
+    if (scrollError) {
+      setError(scrollError);
     }
-  };
+  }, [scrollError]);
 
   /**
    * Handle adding a new product
@@ -133,8 +132,8 @@ export default function AdminDashboard() {
         });
       }
 
-      // Refresh product list
-      await fetchProducts();
+      // Refresh product list - reset infinite scroll
+      reset();
 
       // Close form
       setShowForm(false);
@@ -167,8 +166,8 @@ export default function AdminDashboard() {
         position: 'top-right',
         autoClose: 3000,
       });
-      // Refresh product list
-      await fetchProducts();
+      // Refresh product list - reset infinite scroll
+      reset();
     } catch (err: any) {
       console.error('Error deleting product:', err);
       toast.error(err.message || 'Failed to delete product', {
@@ -354,8 +353,30 @@ export default function AdminDashboard() {
         products={filteredProducts}
         onEdit={handleEditProduct}
         onDelete={handleDeleteProduct}
-        loading={loading}
+        loading={loading && products.length === 0}
       />
+
+      {/* Infinite Scroll Trigger */}
+      {hasMore && !loading && products.length > 0 && (
+        <div ref={setLastElementRef} className="py-8 text-center">
+          <div className="animate-pulse text-gray-600">Loading more products...</div>
+        </div>
+      )}
+
+      {/* Loading More Indicator */}
+      {loading && products.length > 0 && (
+        <div className="py-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading more products...</p>
+        </div>
+      )}
+
+      {/* No More Items */}
+      {!hasMore && products.length > 0 && !loading && (
+        <div className="py-8 text-center text-gray-500">
+          <p>No more products to load</p>
+        </div>
+      )}
     </div>
   );
 }
