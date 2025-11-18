@@ -43,7 +43,7 @@ export class OrderInventoryHandler implements OnModuleInit {
     private readonly reserveStockUseCase: ReserveStockUseCase,
     private readonly releaseReservedStockUseCase: ReleaseReservedStockUseCase,
     private readonly deductStockUseCase: DeductStockUseCase,
-  ) {}
+  ) { }
 
   /**
    * Subscribe to order events on module initialization
@@ -54,6 +54,7 @@ export class OrderInventoryHandler implements OnModuleInit {
     // Subscribe to order lifecycle events (register handlers)
     await this.kafkaConsumer.subscribe('order.created', this.handleOrderCreated.bind(this));
     await this.kafkaConsumer.subscribe('order.updated', this.handleOrderUpdated.bind(this));
+    await this.kafkaConsumer.subscribe('order.processing', this.handleOrderUpdated.bind(this));
     await this.kafkaConsumer.subscribe('order.cancelled', this.handleOrderCancelled.bind(this));
     await this.kafkaConsumer.subscribe('order.delivered', this.handleOrderDelivered.bind(this));
     await this.kafkaConsumer.subscribe('order.shipped', this.handleOrderShipped.bind(this));
@@ -180,6 +181,12 @@ export class OrderInventoryHandler implements OnModuleInit {
           );
           break;
 
+        case 'processing':
+          // Stock remains reserved - no action needed
+          this.logger.debug(
+            `Order ${orderId} processing - stock remains reserved`
+          );
+          break;
         case 'paid':
           // Stock remains reserved - no action needed
           this.logger.debug(
@@ -190,7 +197,7 @@ export class OrderInventoryHandler implements OnModuleInit {
         case 'pending':
           // Initial state - stock should already be reserved
           this.logger.debug(
-            `Order ${orderId} pending - stock should be reserved`
+            `Order ${orderId} ${status} - stock should be reserved`
           );
           break;
 
@@ -346,6 +353,24 @@ export class OrderInventoryHandler implements OnModuleInit {
     } catch (error: any) {
       this.logger.error(
         `❌ Error handling order.shipped event:`,
+        error.stack
+      );
+    }
+  }
+  /**
+   * Handle order.processing event
+   * Stock remains reserved - no action needed
+   */
+  private async handleOrderProcessing(event: any): Promise<void> {
+    try {
+      const orderId = event.orderId || event._id;
+      this.logger.debug(
+        `📦 Order ${orderId} processing - stock remains reserved`
+      );
+      // No inventory action needed - stock stays reserved until delivery
+    } catch (error: any) {
+      this.logger.error(
+        `❌ Error handling order.processing event:`,
         error.stack
       );
     }

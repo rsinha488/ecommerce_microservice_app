@@ -140,6 +140,30 @@ export class WebSocketService {
   getSocket(): Socket | null {
     return this.socket;
   }
+
+  /**
+   * Subscribe to a specific event
+   */
+  on(event: string, callback: (...args: any[]) => void): void {
+    if (!this.socket) return;
+    this.socket.on(event, callback);
+  }
+
+  /**
+   * Unsubscribe from a specific event
+   */
+  off(event: string, callback?: (...args: any[]) => void): void {
+    if (!this.socket) return;
+    this.socket.off(event, callback);
+  }
+
+  /**
+   * Emit an event
+   */
+  emit(event: string, ...args: any[]): void {
+    if (!this.socket) return;
+    this.socket.emit(event, ...args);
+  }
 }
 
 export const socketService = new WebSocketService();

@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/lib/redux/hooks';
+import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks';
 import { orderApi } from '@/lib/api/order';
 import { Order } from '@/lib/redux/slices/orderSlice';
+import { addOrder, updateOrderStatus as updateOrderStatusRedux } from '@/lib/redux/slices/orderSlice';
 import { toast } from 'react-toastify';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { socketService } from '@/lib/websocket/socket.service';
 
 /**
  * Admin Orders Management Page
@@ -26,6 +29,7 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
  */
 export default function AdminOrdersPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user, isAuthenticated, loading: authLoading } = useAppSelector((state) => state.auth);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -42,6 +46,12 @@ export default function AdminOrdersPage() {
     totalRevenue: 0,
   });
 
+  // Initialize WebSocket connection for real-time updates
+  const { isConnected } = useWebSocket();
+
+  // Local orders state for real-time updates (admin sees new orders from users)
+  const [localOrders, setLocalOrders] = useState<Order[]>([]);
+
   // Infinite scroll for orders
   const fetchOrders = async (page: number, pageSize: number) => {
     const orders = await orderApi.getOrders({ page, limit: pageSize });
@@ -55,6 +65,7 @@ export default function AdminOrdersPage() {
     hasMore,
     setLastElementRef,
     reset,
+    refetch,
   } = useInfiniteScroll<Order>(fetchOrders, 1, 20);
 
   const [error, setError] = useState<string | null>(scrollError);
@@ -87,9 +98,90 @@ export default function AdminOrdersPage() {
     }
   }, [scrollError]);
 
+  // Sync local orders with fetched orders
+  useEffect(() => {
+    setLocalOrders(orders);
+  }, [orders]);
+
+  // Real-time WebSocket listeners for admin
+  useEffect(() => {
+    if (!isAuthenticated || !user || !isConnected) return;
+
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    // When a USER creates an order → Admin sees it in real-time
+    const handleNewOrderFromUser = (data: any) => {
+      console.log('[Admin] New order created by user:', data);
+
+      const newOrder: Order = {
+        _id: data.orderId,
+        userId: data.buyerId || data.userId,
+        items: data.items || [],
+        subtotal: data.subtotal || 0,
+        tax: data.tax || 0,
+        total: data.total || data.totalAmount || 0,
+        status: data.status || 'pending',
+        shippingAddress: data.shippingAddress || {
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: ''
+        },
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      };
+
+      // Add new order to top of list
+      setLocalOrders(prev => [newOrder, ...prev]);
+
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        total: prev.total + 1,
+        pending: prev.pending + 1,
+        totalRevenue: prev.totalRevenue + newOrder.total,
+      }));
+
+      // Show notification
+      toast.success(`New order #${data.orderId.slice(-8).toUpperCase()} from customer!`, {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+    };
+
+    // When a USER cancels an order → Admin sees it in real-time
+    const handleOrderCancelledByUser = (data: any) => {
+      console.log('[Admin] Order cancelled by user:', data);
+
+      setLocalOrders(prev =>
+        prev.map(order =>
+          order._id === data.orderId
+            ? { ...order, status: 'cancelled', updatedAt: data.cancelledAt || new Date().toISOString() }
+            : order
+        )
+      );
+
+      // Refresh stats
+      fetchStats();
+
+      toast.warning(`Order #${data.orderId.slice(-8).toUpperCase()} was cancelled by customer`);
+    };
+
+    // Subscribe to admin-specific events
+    socket.on('admin:order:created', handleNewOrderFromUser);
+    socket.on('admin:order:cancelled', handleOrderCancelledByUser);
+
+    return () => {
+      socket.off('admin:order:created');
+      socket.off('admin:order:cancelled');
+    };
+  }, [isAuthenticated, user, isConnected]);
+
   // Apply client-side filters
   const filteredOrders = useMemo(() => {
-    let filtered = orders;
+    let filtered = localOrders;
 
     // Status filter
     if (statusFilter !== 'all') {
@@ -106,7 +198,7 @@ export default function AdminOrdersPage() {
     }
 
     return filtered;
-  }, [orders, statusFilter, searchTerm]);
+  }, [localOrders, statusFilter, searchTerm]);
 
   /**
    * Fetch order statistics
@@ -129,8 +221,14 @@ export default function AdminOrdersPage() {
       await orderApi.updateOrderStatus(orderId, newStatus);
       toast.success(`Order status updated to ${newStatus}`);
 
-      // Refresh orders
-      reset();
+      // Update local state immediately (optimistic update - no page refresh!)
+      setLocalOrders(prev =>
+        prev.map(order =>
+          order._id === orderId
+            ? { ...order, status: newStatus, updatedAt: new Date().toISOString() }
+            : order
+        )
+      );
 
       if (selectedOrder?._id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
@@ -141,6 +239,9 @@ export default function AdminOrdersPage() {
     } catch (err: any) {
       console.error('Error updating status:', err);
       toast.error(err.message || 'Failed to update order status');
+
+      // Revert on error
+      refetch();
     } finally {
       setUpdatingStatus(null);
     }
@@ -174,7 +275,7 @@ export default function AdminOrdersPage() {
   };
 
   // Show loading state
-  if (authLoading || loading) {
+  if (authLoading || (loading && localOrders.length === 0)) {
     return (
       <div className="container-custom py-12">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -191,8 +292,24 @@ export default function AdminOrdersPage() {
     <div className="container-custom py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Management</h1>
-        <p className="text-gray-600">Manage and track all customer orders</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Management</h1>
+            <p className="text-gray-600">Manage and track all customer orders</p>
+          </div>
+          {/* Real-time connection status */}
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-3 h-3 rounded-full ${
+                isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+              }`}
+              title={isConnected ? 'Real-time updates active' : 'Disconnected'}
+            />
+            <span className="text-sm text-gray-600">
+              {isConnected ? 'Live Updates' : 'Offline'}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Statistics Cards */}
@@ -385,14 +502,14 @@ export default function AdminOrdersPage() {
       )}
 
       {/* Infinite Scroll Trigger */}
-      {hasMore && !loading && orders.length > 0 && (
+      {hasMore && !loading && localOrders.length > 0 && (
         <div ref={setLastElementRef} className="py-8 text-center">
           <div className="animate-pulse text-gray-600">Loading more orders...</div>
         </div>
       )}
 
       {/* Loading More Indicator */}
-      {loading && orders.length > 0 && (
+      {loading && localOrders.length > 0 && (
         <div className="py-8 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
           <p className="text-gray-600 mt-2">Loading more orders...</p>
@@ -400,7 +517,7 @@ export default function AdminOrdersPage() {
       )}
 
       {/* No More Items */}
-      {!hasMore && orders.length > 0 && !loading && (
+      {!hasMore && localOrders.length > 0 && !loading && (
         <div className="py-8 text-center text-gray-500">
           <p>No more orders to load</p>
         </div>

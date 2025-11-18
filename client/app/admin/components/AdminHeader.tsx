@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { checkAuth, logout, resetAuth } from '@/lib/redux/slices/authSlice';
+import { toggleNotificationCenter } from '@/lib/redux/slices/notificationSlice';
 import { useRouter, usePathname } from 'next/navigation';
 
 /**
@@ -23,6 +24,7 @@ export default function AdminHeader() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user, loading } = useAppSelector((state) => state.auth);
+  const { unreadCount } = useAppSelector((state) => state.notifications);
 
   useEffect(() => {
     // Check authentication status on component mount
@@ -114,6 +116,35 @@ export default function AdminHeader() {
 
           {/* Right Side - User Info & Logout */}
           <div className="flex items-center space-x-4">
+            {/* Admin Notifications */}
+            {isAuthenticated && (
+              <button
+                onClick={() => dispatch(toggleNotificationCenter())}
+                className="relative p-2 text-gray-300 hover:text-white transition-colors rounded-full hover:bg-gray-700"
+                aria-label={`Notifications - ${unreadCount} unread`}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             {loading ? (
               // Loading state
               <div className="flex items-center space-x-2">

@@ -52,6 +52,10 @@ export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy {
         topics: [
           'order.created',
           'order.updated',
+          'order.processing',
+          'order.delivered',
+          'order.shipped',
+          'order.paid',
           'order.cancelled',
           'inventory.updated',
           'product.created',

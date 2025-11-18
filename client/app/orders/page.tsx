@@ -17,10 +17,14 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [displayCount, setDisplayCount] = useState(10);
+  const [recentlyUpdatedOrders, setRecentlyUpdatedOrders] = useState<Set<string>>(new Set());
   const itemsPerPage = 10;
 
   // Initialize WebSocket connection for real-time order updates
   useWebSocket();
+
+  // Track previous orders to detect real-time updates
+  const prevOrdersRef = useRef<Order[]>([]);
 
   // Filter orders for current user
   const allUserOrders = useMemo(() =>
@@ -41,6 +45,33 @@ export default function OrdersPage() {
       dispatch(fetchOrders());
     }
   }, [dispatch, isAuthenticated]);
+
+  // Detect real-time order status updates
+  useEffect(() => {
+    if (prevOrdersRef.current.length > 0 && orders.length > 0) {
+      const updatedOrderIds = orders
+        .filter((order) => {
+          const prevOrder = prevOrdersRef.current.find((o) => o._id === order._id);
+          return prevOrder && prevOrder.status !== order.status && order.userId === user?.id;
+        })
+        .map((o) => o._id);
+
+      if (updatedOrderIds.length > 0) {
+        console.log('🔄 [ORDERS PAGE] Real-time status updates detected for orders:', updatedOrderIds);
+
+        // Highlight recently updated orders
+        setRecentlyUpdatedOrders(new Set(updatedOrderIds));
+
+        // Remove highlight after 3 seconds
+        setTimeout(() => {
+          setRecentlyUpdatedOrders(new Set());
+        }, 3000);
+      }
+    }
+
+    // Update reference
+    prevOrdersRef.current = orders;
+  }, [orders, user?.id]);
 
   /**
    * Load more orders
@@ -178,10 +209,15 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {userOrders.map((order) => (
+          {userOrders.map((order) => {
+            const isRecentlyUpdated = recentlyUpdatedOrders.has(order._id);
+
+            return (
             <div
               key={order._id}
-              className="card hover:shadow-lg transition-shadow cursor-pointer"
+              className={`card hover:shadow-lg transition-all duration-500 cursor-pointer ${
+                isRecentlyUpdated ? 'ring-2 ring-primary-500 shadow-xl scale-[1.02] bg-primary-50/10' : ''
+              }`}
               onClick={() => setSelectedOrder(selectedOrder?._id === order._id ? null : order)}
             >
               <div className="flex justify-between items-start mb-4">
@@ -252,24 +288,25 @@ export default function OrdersPage() {
                 </div>
               )}
 
-              <div className="border-t mt-4 pt-4 flex justify-between items-center">
-                <div className="flex-1">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Subtotal</span>
-                      <span>${(order.subtotal || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Tax (10%)</span>
-                      <span>${(order.tax || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
-                      <span>Total</span>
-                      <span>${order.total.toFixed(2)}</span>
+              <div className="border-t mt-4 pt-4">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>Subtotal</span>
+                        <span>${(order.subtotal || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>Tax (10%)</span>
+                        <span>${(order.tax || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
+                        <span>Total</span>
+                        <span>${order.total.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
                 <div className="flex space-x-2">
                   {order.status === 'pending' && (
                     <button
@@ -288,8 +325,10 @@ export default function OrdersPage() {
                     View Details
                   </Link> */}
                 </div>
+              </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 

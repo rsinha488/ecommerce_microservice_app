@@ -3,6 +3,9 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import StoreProvider from '@/components/StoreProvider';
 import ConditionalLayout from '@/components/ConditionalLayout';
+import { WebSocketProvider } from '@/components/WebSocketProvider';
+import { NotificationCenter } from '@/components/NotificationCenter';
+import WebSocketIndicator from '@/components/WebSocketIndicator';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -23,18 +26,22 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <StoreProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            pauseOnHover
-            theme="light"
-          />
+          <WebSocketProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+            <WebSocketIndicator />
+            <NotificationCenter />
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              pauseOnHover
+              theme="light"
+            />
+          </WebSocketProvider>
         </StoreProvider>
       </body>
     </html>

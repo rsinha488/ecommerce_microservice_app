@@ -25,7 +25,7 @@ export class UpdateOrderStatusUseCase {
     private readonly orderRepository: OrderRepositoryInterface,
     private readonly mapper: OrderMapper,
     private readonly producer: OrderProducer,
-  ) {}
+  ) { }
 
   /**
    * Execute the update order status operation
@@ -77,6 +77,7 @@ export class UpdateOrderStatusUseCase {
       case 'delivered':
         await this.producer.orderDelivered(order);
         break;
+        
 
       case 'shipped':
         await this.producer.orderShipped(order);

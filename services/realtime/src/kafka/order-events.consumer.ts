@@ -37,9 +37,33 @@ export class OrderEventsConsumer implements OnModuleInit {
       this.handleOrderCreated.bind(this),
     );
 
-    // Register handler for order.updated
+    // Register handler for order.updated (generic updates)
     this.kafkaConsumer.registerHandler(
       'order.updated',
+      this.handleOrderUpdated.bind(this),
+    );
+
+    // Register handler for order.processing
+    this.kafkaConsumer.registerHandler(
+      'order.processing',
+      this.handleOrderUpdated.bind(this),
+    );
+
+    // Register handler for order.shipped
+    this.kafkaConsumer.registerHandler(
+      'order.shipped',
+      this.handleOrderUpdated.bind(this),
+    );
+
+    // Register handler for order.paid
+    this.kafkaConsumer.registerHandler(
+      'order.paid',
+      this.handleOrderUpdated.bind(this),
+    );
+
+    // Register handler for order.delivered
+    this.kafkaConsumer.registerHandler(
+      'order.delivered',
       this.handleOrderUpdated.bind(this),
     );
 
@@ -49,7 +73,7 @@ export class OrderEventsConsumer implements OnModuleInit {
       this.handleOrderCancelled.bind(this),
     );
 
-    this.logger.log('✅ Order event handlers registered');
+    this.logger.log('✅ Order event handlers registered (order.created, order.updated, order.processing, order.shipped, order.paid, order.delivered, order.cancelled)');
   }
 
   /**

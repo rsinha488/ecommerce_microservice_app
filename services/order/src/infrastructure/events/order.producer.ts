@@ -189,6 +189,30 @@ export class OrderProducer {
       // Don't throw - shipping event is not critical
     }
   }
+  /**
+   * Emit order processing event
+   */
+  async orderProcessing(order: Order): Promise<void> {
+    try {
+      await this.bus.emit('order.processing', {
+        event: 'order.processing',
+        orderId: order.id,
+        buyerId: order.buyerId,
+        status: 'processing',
+        processingAt: new Date().toISOString(),
+      });
+
+      this.logger.log(
+        `📤 Order processing event emitted for order ${order.id}`
+      );
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to emit order processing event for order ${order.id}:`,
+        error
+      );
+      // Don't throw - processing event is not critical
+    }
+  }
 
   /**
    * Emit order paid event

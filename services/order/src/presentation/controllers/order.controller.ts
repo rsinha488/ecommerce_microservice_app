@@ -286,7 +286,7 @@ export class OrderController {
       properties: {
         status: {
           type: 'string',
-          enum: ['pending', 'paid', 'cancelled', 'shipped', 'delivered'],
+          enum: ['pending', 'paid', 'processing', 'cancelled', 'shipped', 'delivered'],
           example: 'shipped',
           description: 'New order status',
         },
@@ -308,7 +308,7 @@ export class OrderController {
       this.logger.log(`🔄 Updating order ${id} status to: ${status}`);
 
       // Validate status value
-      const validStatuses = ['pending', 'paid', 'cancelled', 'shipped', 'delivered'];
+      const validStatuses = ['pending', 'paid', 'processing', 'cancelled', 'shipped', 'delivered'];
       if (!validStatuses.includes(status)) {
         throw new HttpException(
           {
